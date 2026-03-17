@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT \n            m.str_nombre_modulo as \"nombre!\",\n            mn.id_menu as \"menu!\",\n            pp.bit_agregar as \"agregar!\",\n            pp.bit_editar as \"editar!\",\n            pp.bit_eliminar as \"eliminar!\",\n            pp.bit_consulta as \"consulta!\"\n        FROM modulo m\n        JOIN permisos_perfil pp ON m.id = pp.id_modulo\n        JOIN menu mn ON m.id = mn.id_modulo\n        WHERE pp.id_perfil = $1 \n          AND (pp.bit_agregar OR pp.bit_editar OR pp.bit_eliminar OR pp.bit_consulta)\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "nombre!",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "menu!",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "agregar!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "editar!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
+        "name": "eliminar!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "consulta!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "a2401afe51487849f20ef9ecb914252b5a690dac5ee357e89142044e2743f807"
+}

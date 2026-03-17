@@ -1,0 +1,53 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT \n            id as \"id!\",\n            str_nombre_usuario as \"nombre!\",\n            str_correo as \"email\",\n            str_numero_celular as \"celular\",\n            imagen,\n            id_estado_usuario  -- <-- NUEVO: Traemos el estado para pintarlo de colores\n        FROM usuario\n        ORDER BY id DESC\n        LIMIT $1 OFFSET $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "nombre!",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "email",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "celular",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "imagen",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "id_estado_usuario",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "9bf1ec294c229564b762fe279a2757c6bc986c10352a2ad9fc81c908e6c281f4"
+}

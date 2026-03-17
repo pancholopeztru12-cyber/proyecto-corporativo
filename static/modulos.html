@@ -1,0 +1,37 @@
+<h2>Módulos</h2>
+
+<button onclick="cargar()">Cargar módulos</button>
+
+<ul id="lista"></ul>
+
+<script>
+
+async function cargar(){
+
+    const token = localStorage.getItem("token");
+
+    const response = await fetch("/modulos",{
+        headers:{
+            "Authorization": "Bearer " + token
+        }
+    });
+
+    const data = await response.json();
+
+    const lista = document.getElementById("lista");
+
+    lista.innerHTML="";
+
+    data.forEach(m=>{
+
+        const li=document.createElement("li");
+
+        li.innerText=m;
+
+        lista.appendChild(li);
+
+    });
+
+}
+
+</script>

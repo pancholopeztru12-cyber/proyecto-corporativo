@@ -1,0 +1,62 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT \n            id as \"id!\", \n            id_modulo as \"id_modulo!\", \n            id_perfil as \"id_perfil!\", \n            bit_agregar as \"bit_agregar!\", \n            bit_editar as \"bit_editar!\", \n            bit_consulta as \"bit_consulta!\", \n            bit_eliminar as \"bit_eliminar!\", \n            bit_detalle as \"bit_detalle!\" \n        FROM permisos_perfil\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "id_modulo!",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "id_perfil!",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "bit_agregar!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
+        "name": "bit_editar!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "bit_consulta!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "bit_eliminar!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 7,
+        "name": "bit_detalle!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "fb07fdff3989c58e279442e5b415a3baca0886545a917b97b278b4645c02ef4e"
+}

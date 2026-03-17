@@ -1,0 +1,258 @@
+/* ==========================================
+   VARIABLES Y RESET
+   ========================================== */
+:root {
+    --primary: #2563eb;       /* Azul moderno */
+    --primary-dark: #1e40af;
+    --sidebar-bg: #0f172a;    /* Slate oscuro */
+    --bg-body: #f8fafc;
+    --text-main: #334155;
+    --text-light: #64748b;
+    --white: #ffffff;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --border: #e2e8f0;
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+    margin: 0;
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    line-height: 1.5;
+}
+
+/* ==========================================
+   LAYOUT (CONTENEDORES)
+   ========================================== */
+.breadcrumb {
+    padding: 15px 30px 0;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+h2 {
+    padding: 0 30px;
+    margin: 10px 0 20px;
+    font-weight: 700;
+    color: var(--sidebar-bg);
+}
+
+.container {
+    display: flex;
+    gap: 25px;
+    padding: 0 30px 30px;
+    align-items: flex-start;
+}
+
+/* ==========================================
+   SIDEBAR (MENÚ LATERAL)
+   ========================================== */
+#menu-lateral {
+    width: 260px;
+    background: var(--sidebar-bg);
+    color: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    min-height: 80vh;
+}
+
+#menu-lateral h3 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #94a3b8;
+    margin-bottom: 15px;
+}
+
+#lista-menu {
+    list-style: none;
+    padding: 0;
+}
+
+#lista-menu li strong {
+    display: block;
+    margin-top: 20px;
+    color: #6366f1;
+    font-size: 0.8rem;
+}
+
+#lista-menu a {
+    color: #cbd5e1;
+    text-decoration: none;
+    display: block;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+#lista-menu a:hover {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    padding-left: 18px;
+}
+
+/* Botón Salir */
+#menu-lateral button {
+    margin-top: 20px;
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid var(--danger);
+    color: #fca5a5;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+#menu-lateral button:hover {
+    background: var(--danger);
+    color: white;
+}
+
+/* ==========================================
+   CONTENIDO Y CARDS
+   ========================================== */
+.content {
+    flex: 1;
+    background: var(--white);
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+h3 {
+    margin-top: 0;
+    color: var(--sidebar-bg);
+    font-size: 1.25rem;
+    border-left: 4px solid var(--primary);
+    padding-left: 10px;
+}
+
+/* ==========================================
+   FORMULARIOS
+   ========================================== */
+.form-group {
+    max-width: 100% !important;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+input, select {
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: #f1f5f9;
+    transition: border 0.3s, box-shadow 0.3s;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    background: white;
+}
+
+/* Contenedor de Checkboxes en Permisos */
+.checkbox-group {
+    grid-column: 1 / -1; /* Ocupa todo el ancho */
+    display: flex;
+    justify-content: space-around;
+    background: #f8fafc;
+    border: 1px dashed var(--border);
+    padding: 15px;
+    border-radius: 8px;
+}
+
+/* ==========================================
+   TABLAS
+   ========================================== */
+table {
+    width: 100%;
+    margin-top: 25px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: none;
+}
+
+th {
+    background-color: #f1f5f9;
+    color: var(--text-main);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    padding: 15px;
+}
+
+td {
+    padding: 15px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.9rem;
+}
+
+tr:hover {
+    background-color: #f8fafc;
+}
+
+.user-img {
+    width: 40px;
+    height: 40px;
+    border: 2px solid white;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+/* ==========================================
+   BOTONES ACCIÓN
+   ========================================== */
+.btn-guardar {
+    background: var(--primary);
+    color: white;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    border: none;
+    transition: background 0.2s;
+}
+
+.btn-guardar:hover { background: var(--primary-dark); }
+
+.btn-eliminar {
+    background: #fee2e2 !important;
+    color: var(--danger) !important;
+    border: 1px solid #fecaca !important;
+    padding: 6px 12px !important;
+    border-radius: 6px !important;
+    font-size: 0.8rem;
+}
+
+.btn-eliminar:hover {
+    background: var(--danger) !important;
+    color: white !important;
+}
+
+/* Paginación */
+.pagination {
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.pagination button {
+    background: white;
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.pagination button:hover { background: #f1f5f9; }

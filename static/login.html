@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Proyecto Corporativo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --accent-gradient: linear-gradient(to right, #ff416c, #ff4b2b);
+            --text-white: #ffffff;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+            /* Fondo con gradiente profundo y radial para dar profundidad */
+            background: radial-gradient(circle at top left, #4a0e0e, #1a1a2e, #0f0f1a);
+            background-attachment: fixed;
+            color: var(--text-white);
+        }
+
+        .login-card { 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(15px); /* Efecto cristal */
+            -webkit-backdrop-filter: blur(15px);
+            padding: 3rem; 
+            border-radius: 24px; 
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+            width: 90%; 
+            max-width: 380px; 
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .user-icon {
+            font-size: 70px;
+            margin-bottom: 10px;
+            opacity: 0.6;
+            color: white;
+        }
+
+        h2 {
+            margin-bottom: 2rem;
+            font-weight: 400;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            color: white;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+        }
+
+        /* Iconos simulados con texto para los inputs */
+        .input-group::before {
+            content: '';
+            margin-right: 10px;
+            opacity: 0.7;
+        }
+
+        input { 
+            width: 100%; 
+            padding: 12px 5px; 
+            background: transparent !important;
+            border: none !important;
+            color: white !important;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .options-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            margin-bottom: 25px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .options-bar a {
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            font-style: italic;
+        }
+
+        button { 
+            width: 100%; 
+            padding: 15px; 
+            background: var(--accent-gradient); 
+            color: white; 
+            border: none; 
+            border-radius: 30px; 
+            cursor: pointer; 
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 15px rgba(255, 65, 108, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover { 
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(255, 65, 108, 0.6);
+        }
+
+        .captcha-container { 
+            margin-bottom: 20px; 
+            display: flex; 
+            justify-content: center; 
+            transform: scale(0.85);
+            filter: grayscale(1) invert(1) brightness(2); /* Ajuste visual para el captcha en modo oscuro */
+        }
+
+        .footer-text {
+            margin-top: 2rem;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <div class="user-icon">👤</div>
+    <h2>LOGIN</h2>
+    
+    <div class="input-group">
+        <input id="usuario" placeholder="Email ID" required>
+    </div>
+
+    <div class="input-group">
+        <input id="password" type="password" placeholder="Password" required>
+    </div>
+
+    <div class="options-bar">
+        <label><input type="checkbox" checked> Remember me</label>
+        <a href="#">Forgot Password?</a>
+    </div>
+
+    <div class="captcha-container">
+        <div class="g-recaptcha" data-sitekey="6LcigIssAAAAABpIlmyDTJ3-WTIdo0EZ71yilcR0"></div>
+    </div>
+
+    <button onclick="login()">Login</button>
+    
+    <div class="footer-text">
+        © 2026 Sistema Corporativo
+    </div>
+</div>
+
+<script src="/js/login.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT id, str_pwd, id_perfil, id_estado_usuario FROM usuario WHERE str_nombre_usuario = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "str_pwd",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "id_perfil",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "id_estado_usuario",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "94851bc1c84a6df3c4aee5821ba5a2192076ac8c1f74872ebdffe04928f840c3"
+}

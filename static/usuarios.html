@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+    <div class="breadcrumb">Seguridad > <b>Usuario</b></div>
+    <h2>Gestión de Usuarios</h2>
+
+    <div class="container">
+        <aside id="menu-lateral">
+            <h3>Menú</h3>
+            <ul id="lista-menu"></ul>
+            <hr>
+            <button onclick="localStorage.clear(); location.href='/login.html'" style="width:100%">Salir</button>
+        </aside>
+
+        <main class="content">
+            <div id="formulario">
+                <h3>Crear / Editar Usuario</h3>
+                <div class="form-group">
+                    <input id="nuevo_usuario" placeholder="Nombre de Usuario">
+                    <input id="nuevo_password" type="password" placeholder="Password">
+                    <select id="nuevo_perfil"><option value="">Seleccione Perfil</option></select>
+                    <input id="nuevo_correo" type="email" placeholder="Correo Electrónico">
+                    <input id="nuevo_celular" placeholder="Número de Celular">
+                    
+                    <select id="nuevo_estado">
+                        <option value="true">Activo</option>
+                        <option value="false">Inactivo</option>
+                    </select>
+                    
+                    <div>
+                        <label style="font-size: 0.8rem; color: var(--text-light);">Subir Fotografía:</label>
+                        <input type="file" id="imagen_usuario" accept="image/*"> 
+                    </div>
+                </div>
+                
+                <button id="btn-crear" class="btn-guardar" onclick="crearUsuario()">Guardar Usuario</button>
+            </div>
+
+            <hr style="margin: 30px 0; border: 0; border-top: 1px solid var(--border);">
+
+            <h3>Lista de Usuarios</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Foto</th>
+                        <th>Usuario</th>
+                        <th>Correo</th>
+                        <th>Celular</th>
+                        <th>Estado</th> <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaUsuarios"></tbody>
+            </table>
+
+            <div class="pagination">
+                <button onclick="cambiarPagina(-1)">Anterior</button>
+                <span id="infoPagina">Página 1</span>
+                <button onclick="cambiarPagina(1)">Siguiente</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/usuarios.js"></script>
+</body>
+</html>
