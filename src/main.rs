@@ -19,8 +19,10 @@ async fn main() {
 
     println!("Conectado a PostgreSQL correctamente");
 
-    // 2. CONSTRUCCIÓN DE LA APP
+   // 2. CONSTRUCCIÓN DE LA APP
     let app = Router::new()
+        // 👇 ESTA ES LA LÍNEA NUEVA: Redirige la raíz "/" hacia "/login.html"
+        .route("/", axum::routing::get(|| async { axum::response::Redirect::permanent("/login.html") }))
         .nest_service("/uploads", ServeDir::new("uploads")) 
         .nest("/api", routes::create_routes(pool))
         .fallback_service(ServeDir::new("static"));
