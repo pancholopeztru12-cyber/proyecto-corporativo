@@ -1,7 +1,8 @@
 use dotenvy::dotenv;
-use std::net::SocketAddr;
+// Ya no necesitamos SocketAddr de la misma forma, así que puedes quitarlo si quieres, 
+// o dejarlo, pero usaremos un String formateado para más facilidad con las variables de entorno.
 use tower_http::services::ServeDir;
-use axum::Router; // 1. IMPORTACIÓN FALTANTE
+use axum::Router; 
 
 mod db;
 mod handlers;
@@ -19,22 +20,27 @@ async fn main() {
     println!("Conectado a PostgreSQL correctamente");
 
     // 2. CONSTRUCCIÓN DE LA APP
-    // Combinamos los servicios de archivos con las rutas de la API
     let app = Router::new()
-        // Servir carpeta de imágenes (requisito para fotos de usuario)
         .nest_service("/uploads", ServeDir::new("uploads")) 
-        // Unir las rutas que definiste en routes.rs y pasarles el pool de la DB
-        .nest("/api", routes::create_routes(pool)) // Cambiado de crear_rutas a create_routes        // Si no coincide con nada, busca en la carpeta static (index.html, login.html, etc.)
+        .nest("/api", routes::create_routes(pool))
         .fallback_service(ServeDir::new("static"));
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    // --- NUEVA LÓGICA PARA RENDER ---
+    // Render inyecta una variable llamada "PORT". Si no la encuentra (como en tu PC local), usa "3000".
+    let port = std::env::var("PORT").unwrap_or_else(|_| "3000".to_string());
+    
+    // CRÍTICO: Debe ser "0.0.0.0" para aceptar conexiones externas en la nube.
+    let addr = format!("0.0.0.0:{}", port);
 
-    println!("Servidor en http://{}", addr);
+    println!("Servidor corriendo en: http://{}", addr);
+
+    // Creamos el listener con la nueva dirección
+    let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
 
     // 3. INICIO DEL SERVIDOR
     axum::serve(
-        tokio::net::TcpListener::bind(addr).await.unwrap(),
-        app.into_make_service(), // Se recomienda .into_make_service() para evitar errores de inferencia
+        listener,
+        app.into_make_service(), 
     )
     .await
     .unwrap();
