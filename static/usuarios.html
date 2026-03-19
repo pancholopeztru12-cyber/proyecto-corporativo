@@ -14,6 +14,14 @@
     <div class="container">
         <aside id="menu-lateral">
             <h3>Menú</h3>
+            
+            <ul style="list-style: none; padding-left: 0; margin-bottom: 10px;">
+                <li style="padding: 10px 0;">
+                    <a href="/nuevo_perfil.html" style="color: inherit; text-decoration: none; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+                        <span>+</span> Nuevo Perfil
+                    </a>
+                </li>
+            </ul>
             <ul id="lista-menu"></ul>
             <hr>
             <button onclick="localStorage.clear(); location.href='/login.html'" style="width:100%">Salir</button>
@@ -53,7 +61,8 @@
                         <th>Usuario</th>
                         <th>Correo</th>
                         <th>Celular</th>
-                        <th>Estado</th> <th>Acciones</th>
+                        <th>Estado</th> 
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tablaUsuarios"></tbody>

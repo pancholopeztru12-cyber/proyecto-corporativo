@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Perfil - Sistema Corporativo</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        /* --- ESTILOS ADAPTADOS A TU DISEÑO --- */
+        :root {
+            /* Colores oscuros de tu barra lateral (Imagen 1) y estilo structured (Imagen 9/10) */
+            --bg-body: #0a0e17; /* Fondo general muy oscuro */
+            --bg-card: #141a26; /* Fondo de la tarjeta un poco más claro */
+            --bg-input: #1e2533; /* Fondo de inputs oscuros */
+            
+            /* Colores de acento (Azul como en Imagen 9/10 y Login) */
+            --color-primary: #3b82f6; 
+            --color-hover: #2563eb;
+            
+            /* Texto */
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            --border-color: #2d3748;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px; /* Un poco ancho para el diseño en dos columnas */
+            padding: 20px;
+        }
+
+        /* --- TARJETA PRINCIPAL (CARD) --- */
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); /* Sombra elegante */
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Cabecera con el icono */
+        .card-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-header i {
+            font-size: 24px;
+            color: var(--color-primary); /* Icono azul */
+        }
+
+        .card-header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        /* Cuerpo del formulario */
+        .card-body {
+            padding: 30px 25px;
+        }
+
+        /* --- LAYOUT EN DOS COLUMNAS (GRID) --- */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Mitad y mitad */
+            gap: 25px;
+            align-items: start;
+        }
+
+        /* --- GRUPOS DE INPUTS --- */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* El asterisco rojo para obligatorios */
+        .required::after {
+            content: " *";
+            color: #ef4444; 
+        }
+
+        .form-control {
+            width: 100%;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px 15px;
+            color: var(--text-main);
+            font-size: 15px;
+            box-sizing: border-box; /* Importante para el padding */
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        textarea.form-control {
+            resize: vertical; /* Solo redimensionar verticalmente */
+            height: 120px;
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 5px;
+            display: block;
+        }
+
+        /* --- TARJETA DE ADMINISTRADOR (DERECHA) --- */
+        .admin-toggle-card {
+            background-color: var(--bg-input); /* Un poco diferente de la card principal */
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 27px; /* Alineación visual con el input de arriba */
+        }
+
+        .admin-toggle-info h4 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .admin-toggle-info p {
+            margin: 0;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* --- ESTILO DEL INTERRUPTOR (SWITCH) --- */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #475569; /* Gris oscuro para "No" */
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--color-primary); /* Azul para "Sí" */
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px var(--color-primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* --- ACCIONES (BOTONES) --- */
+        .card-footer {
+            padding: 20px 25px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none; /* Por si son enlaces */
+        }
+
+        /* Botón Guardar (Azul) */
+        .btn-primary {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--color-hover);
+        }
+
+        /* Botón Cancelar (Gris/Contorno) */
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            
+            <div class="card-header">
+                <i class="ri-user-add-line"></i>
+                <h2>Nuevo Perfil</h2>
+            </div>
+
+            <div class="card-body">
+                <form id="formNuevoPerfil">
+                    
+                    <div class="form-grid">
+                        
+                        <div class="left-column">
+                            <div class="form-group">
+                                <label for="nombrePerfil" class="required">Nombre del Perfil</label>
+                                <input type="text" id="nombrePerfil" class="form-control" placeholder="Ej: Operador, Supervisor..." required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="descripcionPerfil">Descripción</label>
+                                <textarea id="descripcionPerfil" class="form-control" placeholder="Descripción opcional del perfil..."></textarea>
+                                <span class="form-help">Máximo 255 caracteres. (Opcional)</span>
+                            </div>
+                        </div>
+
+                        <div class="right-column">
+                            <div class="admin-toggle-card">
+                                <div class="admin-toggle-info">
+                                    <h4>Perfil Administrador</h4>
+                                    <p>Los perfiles administradores tienen acceso completo al sistema.</p>
+                                </div>
+                                
+                                <label class="switch">
+                                    <input type="checkbox" id="esAdministrador">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                    </div> </form>
+            </div> <div class="card-footer">
+                <button type="submit" form="formNuevoPerfil" class="btn btn-primary">
+                    <i class="ri-save-line"></i>
+                    Guardar
+                </button>
+                
+                <a href="perfiles.html" class="btn btn-secondary">
+                    <i class="ri-close-line"></i>
+                    Cancelar
+                </div>
+            </div>
+
+        </div> </div>
+</body>
+</html>
