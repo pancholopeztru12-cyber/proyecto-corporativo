@@ -19,8 +19,8 @@ document.getElementById('formNuevoPerfil').addEventListener('submit', async func
     };
 
     try {
-        // Enviar a la ruta correcta de Rust
-        const response = await fetch('/perfiles', {
+        // 👇 Se actualizó la ruta con el prefijo /api/ para evitar el Error 405
+        const response = await fetch('/api/perfiles', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
