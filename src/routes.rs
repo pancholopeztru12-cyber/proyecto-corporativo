@@ -15,7 +15,8 @@ async fn home() -> &'static str {
 pub fn create_routes(pool: PgPool) -> Router {
     // Rutas que REQUIEREN Token JWT
     let protected = Router::new()
-        .route("/perfiles", get(crate::handlers::perfiles::listar))
+        // 👇 AQUÍ está el cambio: agregamos el .post()
+        .route("/perfiles", get(crate::handlers::perfiles::listar).post(crate::handlers::perfiles::crear_perfil))
 
         // USUARIOS
         .route("/usuarios", get(crate::handlers::usuarios::listar))
@@ -23,12 +24,11 @@ pub fn create_routes(pool: PgPool) -> Router {
         .route("/usuarios/:id", put(crate::handlers::usuarios::editar_usuario))
         .route("/usuarios/:id", delete(crate::handlers::usuarios::eliminar_usuario))
 
-        // MODULOS Y MENU DINÁMICO (Requisito de Evaluación)
+        // MODULOS Y MENU DINÁMICO
         .route("/modulos", get(crate::handlers::modulos::listar_modulos))
         .route("/menu-dinamico", get(crate::handlers::modulos::obtener_menu_permisos))
 
-        // PERMISOS (Para la gestión de bits)
-        // Agregamos POST, PUT y DELETE. Usamos guion_bajo para coincidir con el frontend
+        // PERMISOS
         .route("/permisos_perfil", get(crate::handlers::permisos_perfil::listar_permisos).post(crate::handlers::permisos_perfil::crear_permiso))
         .route("/permisos_perfil/:id", put(crate::handlers::permisos_perfil::editar_permiso).delete(crate::handlers::permisos_perfil::eliminar_permiso))
 
@@ -40,5 +40,5 @@ pub fn create_routes(pool: PgPool) -> Router {
         .route("/", get(home))
         .route("/login", post(login))
         .merge(protected)
-        .with_state(pool) // El estado se pasa una sola vez al final del merge
+        .with_state(pool)
 }

@@ -4,5 +4,13 @@ use serde::{Deserialize, Serialize};
 pub struct Perfil {
     pub id: i32,
     pub str_nombre_perfil: String,
-    // pub bit_administrador: bool, // Descomenta esta línea si tu tabla ya tiene esta columna
+    // pub bit_administrador: bool, // Lo dejamos comentado si tu tabla original no lo pedía aquí
+}
+
+// Estructura NUEVA para atrapar los datos del HTML
+#[derive(Deserialize, Debug)]
+pub struct CrearPerfilReq {
+    pub str_nombre_perfil: String,
+    pub bit_administrador: bool,
+    pub descripcion: Option<String>,
 }
