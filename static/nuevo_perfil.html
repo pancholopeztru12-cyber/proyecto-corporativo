@@ -8,16 +8,11 @@
     <style>
         /* --- ESTILOS ADAPTADOS A TU DISEÑO --- */
         :root {
-            /* Colores oscuros de tu barra lateral (Imagen 1) y estilo structured (Imagen 9/10) */
-            --bg-body: #0a0e17; /* Fondo general muy oscuro */
-            --bg-card: #141a26; /* Fondo de la tarjeta un poco más claro */
-            --bg-input: #1e2533; /* Fondo de inputs oscuros */
-            
-            /* Colores de acento (Azul como en Imagen 9/10 y Login) */
+            --bg-body: #0a0e17; 
+            --bg-card: #141a26; 
+            --bg-input: #1e2533; 
             --color-primary: #3b82f6; 
             --color-hover: #2563eb;
-            
-            /* Texto */
             --text-main: #ffffff;
             --text-muted: #94a3b8;
             --border-color: #2d3748;
@@ -36,20 +31,18 @@
 
         .container {
             width: 100%;
-            max-width: 900px; /* Un poco ancho para el diseño en dos columnas */
+            max-width: 900px; 
             padding: 20px;
         }
 
-        /* --- TARJETA PRINCIPAL (CARD) --- */
         .card {
             background-color: var(--bg-card);
             border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); /* Sombra elegante */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); 
             overflow: hidden;
             border: 1px solid var(--border-color);
         }
 
-        /* Cabecera con el icono */
         .card-header {
             padding: 20px 25px;
             border-bottom: 1px solid var(--border-color);
@@ -60,7 +53,7 @@
 
         .card-header i {
             font-size: 24px;
-            color: var(--color-primary); /* Icono azul */
+            color: var(--color-primary); 
         }
 
         .card-header h2 {
@@ -69,20 +62,17 @@
             font-weight: 600;
         }
 
-        /* Cuerpo del formulario */
         .card-body {
             padding: 30px 25px;
         }
 
-        /* --- LAYOUT EN DOS COLUMNAS (GRID) --- */
         .form-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* Mitad y mitad */
+            grid-template-columns: 1fr 1fr; 
             gap: 25px;
             align-items: start;
         }
 
-        /* --- GRUPOS DE INPUTS --- */
         .form-group {
             margin-bottom: 20px;
         }
@@ -94,7 +84,6 @@
             color: var(--text-muted);
         }
 
-        /* El asterisco rojo para obligatorios */
         .required::after {
             content: " *";
             color: #ef4444; 
@@ -108,7 +97,7 @@
             padding: 12px 15px;
             color: var(--text-main);
             font-size: 15px;
-            box-sizing: border-box; /* Importante para el padding */
+            box-sizing: border-box; 
             transition: border-color 0.2s;
         }
 
@@ -118,7 +107,7 @@
         }
 
         textarea.form-control {
-            resize: vertical; /* Solo redimensionar verticalmente */
+            resize: vertical; 
             height: 120px;
         }
 
@@ -129,16 +118,15 @@
             display: block;
         }
 
-        /* --- TARJETA DE ADMINISTRADOR (DERECHA) --- */
         .admin-toggle-card {
-            background-color: var(--bg-input); /* Un poco diferente de la card principal */
+            background-color: var(--bg-input); 
             border-radius: 8px;
             border: 1px solid var(--border-color);
             padding: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 27px; /* Alineación visual con el input de arriba */
+            margin-top: 27px; 
         }
 
         .admin-toggle-info h4 {
@@ -153,7 +141,6 @@
             color: var(--text-muted);
         }
 
-        /* --- ESTILO DEL INTERRUPTOR (SWITCH) --- */
         .switch {
             position: relative;
             display: inline-block;
@@ -174,7 +161,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #475569; /* Gris oscuro para "No" */
+            background-color: #475569; 
             transition: .4s;
             border-radius: 34px;
         }
@@ -192,7 +179,7 @@
         }
 
         input:checked + .slider {
-            background-color: var(--color-primary); /* Azul para "Sí" */
+            background-color: var(--color-primary); 
         }
 
         input:focus + .slider {
@@ -203,7 +190,6 @@
             transform: translateX(24px);
         }
 
-        /* --- ACCIONES (BOTONES) --- */
         .card-footer {
             padding: 20px 25px;
             border-top: 1px solid var(--border-color);
@@ -221,10 +207,9 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            text-decoration: none; /* Por si son enlaces */
+            text-decoration: none; 
         }
 
-        /* Botón Guardar (Azul) */
         .btn-primary {
             background-color: var(--color-primary);
             color: white;
@@ -235,7 +220,6 @@
             background-color: var(--color-hover);
         }
 
-        /* Botón Cancelar (Gris/Contorno) */
         .btn-secondary {
             background-color: transparent;
             color: var(--text-main);
@@ -245,7 +229,6 @@
         .btn-secondary:hover {
             background-color: rgba(255, 255, 255, 0.05);
         }
-
     </style>
 </head>
 <body>
@@ -257,9 +240,8 @@
                 <h2>Nuevo Perfil</h2>
             </div>
 
-            <div class="card-body">
-                <form id="formNuevoPerfil">
-                    
+            <form id="formNuevoPerfil">
+                <div class="card-body">
                     <div class="form-grid">
                         
                         <div class="left-column">
@@ -289,21 +271,24 @@
                             </div>
                         </div>
 
-                    </div> </form>
-            </div> <div class="card-footer">
-                <button type="submit" form="formNuevoPerfil" class="btn btn-primary">
-                    <i class="ri-save-line"></i>
-                    Guardar
-                </button>
-                
-                <a href="perfiles.html" class="btn btn-secondary">
-                    <i class="ri-close-line"></i>
-                    Cancelar
-                </div>
-            </div>
+                    </div>
+                </div> 
 
-        </div> </div>
-        <script src="/js/nuevo_perfil.js"></script>
-</body>
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ri-save-line"></i>
+                        Guardar
+                    </button>
+                    
+                    <a href="/usuarios.html" class="btn btn-secondary">
+                        <i class="ri-close-line"></i>
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+            </div> 
+    </div>
+    
+    <script src="/js/nuevo_perfil.js"></script>
 </body>
 </html>
