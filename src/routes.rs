@@ -9,7 +9,7 @@ use crate::handlers::auth::login;
 use crate::middleware::jwt::jwt_auth;
 
 async fn home() -> &'static str {
-    "API Proyecto Corporativo funcionando 🚀"
+    "API Proyecto Corporativo funcionando 🚀 VERSION 2"
 }
 
 pub fn create_routes(pool: PgPool) -> Router {
