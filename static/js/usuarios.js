@@ -36,14 +36,12 @@ async function cargarUsuarios(pagina = 1) {
         usuarios.forEach(u => {
             const fotoUrl = u.imagen ? `/uploads/usuarios/${u.imagen}` : '/img/default.png';
             
-            // LOGICA PARA EL ESTADO ACTIVO/INACTIVO
             const esActivo = u.id_estado_usuario === true || u.id_estado_usuario === "true" || u.id_estado_usuario === 1;
             const estadoTexto = esActivo ? "Activo" : "Inactivo";
-            const estadoColor = esActivo ? "#10b981" : "#ef4444"; // Verde o Rojo
+            const estadoColor = esActivo ? "#10b981" : "#ef4444"; 
             
-            // Adapté las variables por si el backend manda nombre o str_nombre_usuario
             const nombreMostrar = u.nombre || u.str_nombre_usuario || "N/A";
-            const perfilMostrar = u.perfil || "Sin Perfil"; // NUEVO
+            const perfilMostrar = u.perfil || "Sin Perfil"; 
             const emailMostrar = u.email || u.str_correo || "N/A";
             const celularMostrar = u.celular || u.str_numero_celular || "N/A";
             
@@ -69,7 +67,7 @@ async function cargarUsuarios(pagina = 1) {
 }
 
 /* ==========================================
-   CREAR USUARIO (CON IMAGEN Y ESTADO)
+   CREAR USUARIO 
    ========================================== */
 async function crearUsuario() {
     const token = localStorage.getItem("token");
@@ -80,8 +78,6 @@ async function crearUsuario() {
     formData.append("id_perfil", document.getElementById("nuevo_perfil").value);
     formData.append("str_correo", document.getElementById("nuevo_correo").value);
     formData.append("str_numero_celular", document.getElementById("nuevo_celular").value);
-    
-    // NUEVO: AGREGAMOS EL ESTADO AL FORMULARIO
     formData.append("id_estado_usuario", document.getElementById("nuevo_estado").value);
 
     const inputImagen = document.getElementById("imagen_usuario");
@@ -107,7 +103,6 @@ async function crearUsuario() {
 
         if (response.ok) {
             alert("Usuario guardado con éxito");
-            // Limpiamos los campos
             document.getElementById("nuevo_usuario").value = "";
             document.getElementById("nuevo_password").value = "";
             document.getElementById("nuevo_correo").value = "";
@@ -140,7 +135,6 @@ async function cargarPerfiles() {
             const select = document.getElementById("nuevo_perfil");
             select.innerHTML = '<option value="">Seleccione Perfil</option>';
             perfiles.forEach(p => {
-                // Adaptado por si tu API devuelve id y nombre o str_nombre_perfil
                 const nombrePerfil = p.nombre || p.str_nombre_perfil || "Desconocido";
                 select.innerHTML += `<option value="${p.id}">${nombrePerfil}</option>`;
             });
@@ -149,7 +143,7 @@ async function cargarPerfiles() {
 }
 
 /* ==========================================
-   MENÚ DINÁMICO Y PERMISOS DE BOTONES (JERÁRQUICO)
+   MENÚ DINÁMICO Y PERMISOS DE BOTONES
    ========================================== */
 async function cargarMenuDinamico() {
     const token = localStorage.getItem("token");
@@ -243,7 +237,7 @@ async function cargarMenuDinamico() {
 }
 
 /* ==========================================
-   ELIMINAR USUARIO (AHORA SERÁ ELIMINACIÓN LÓGICA)
+   ELIMINAR USUARIO
    ========================================== */
 async function eliminarUsuario(id) {
     if(confirm("¿Seguro que deseas desactivar este usuario?")) {
@@ -268,7 +262,25 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = "/login.html";
         return;
     }
+
+    // NUEVO: Mostrar el nombre del usuario logueado
+    const nombreGuardado = localStorage.getItem("nombre_usuario") || "Usuario";
+    const spanNombre = document.getElementById("nombre-usuario-nav");
+    if (spanNombre) {
+        spanNombre.innerText = nombreGuardado;
+    }
+
     cargarPerfiles();
     cargarUsuarios(1);
     cargarMenuDinamico();
 });
+
+/* ==========================================
+   PAGINACIÓN
+   ========================================== */
+function cambiarPagina(delta) {
+    const nuevaPagina = paginaActual + delta;
+    if (nuevaPagina > 0) {
+        cargarUsuarios(nuevaPagina);
+    }
+}

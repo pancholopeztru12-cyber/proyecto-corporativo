@@ -10,12 +10,13 @@ use crate::models::usuario::Claims;
 pub struct LoginRequest {
     pub usuario: String,
     pub password: String,
-    pub captcha: String, // Aquí recibiremos el token de Google
+    pub captcha: String, 
 }
 
 #[derive(Serialize)]
 pub struct LoginResponse {
     pub token: String,
+    pub nombre: String, // <--- NUEVO: Agregamos el nombre a la respuesta
 }
 
 #[derive(Deserialize)]
@@ -31,7 +32,6 @@ pub async fn login(
     // ==========================================
     // 1. VALIDAR CAPTCHA CON GOOGLE
     // ==========================================
-    // Usamos la clave secreta de prueba de Google
     let secret_key = "6LcigIssAAAAAJ_1YcrpeHUTCQdjFM07tEZEsuBM"; 
     
     let client = reqwest::Client::new();
@@ -60,8 +60,9 @@ pub async fn login(
     // ==========================================
     // 2. BUSCAR USUARIO
     // ==========================================
+    // NUEVO: Agregué `str_nombre_usuario` a la consulta
     let user = sqlx::query!(
-        r#"SELECT id, str_pwd, id_perfil, id_estado_usuario FROM usuario WHERE str_nombre_usuario = $1"#,
+        r#"SELECT id, str_nombre_usuario, str_pwd, id_perfil, id_estado_usuario FROM usuario WHERE str_nombre_usuario = $1"#,
         payload.usuario
     )
     .fetch_optional(&pool)
@@ -112,5 +113,9 @@ pub async fn login(
             Json(serde_json::json!({"message": "Error al generar token"}))
         ))?;
 
-    Ok(Json(LoginResponse { token }))
+    // NUEVO: Devolvemos también el nombre del usuario
+    Ok(Json(LoginResponse { 
+        token,
+        nombre: u.str_nombre_usuario, 
+    }))
 }

@@ -33,7 +33,7 @@ async function login() {
             body: JSON.stringify({ 
                 usuario: usuario,  
                 password: password, 
-                captcha: recaptchaToken // Enviamos el token real de Google
+                captcha: recaptchaToken 
             })
         });
 
@@ -44,7 +44,12 @@ async function login() {
         }
 
         if (response.ok) {
+            // Guardamos el token
             localStorage.setItem("token", data.token);
+            
+            // NUEVO: Guardamos el nombre del usuario que nos mandó el backend
+            localStorage.setItem("nombre_usuario", data.nombre);
+            
             alert("Bienvenido al sistema");
             window.location.href = "/usuarios.html";
         } else {

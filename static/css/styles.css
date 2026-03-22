@@ -163,7 +163,7 @@ input:focus, select:focus {
 
 /* Contenedor de Checkboxes en Permisos */
 .checkbox-group {
-    grid-column: 1 / -1; /* Ocupa todo el ancho */
+    grid-column: 1 / -1; 
     display: flex;
     justify-content: space-around;
     background: #f8fafc;
@@ -256,3 +256,32 @@ tr:hover {
 }
 
 .pagination button:hover { background: #f1f5f9; }
+
+/* ==========================================
+   HEADER Y BIENVENIDA (NUEVO)
+   ========================================== */
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px 0;
+    margin-bottom: 5px;
+}
+
+.top-header .breadcrumb {
+    padding: 0;
+}
+
+.user-welcome {
+    background-color: #eff6ff;
+    color: var(--primary-dark);
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(37, 99, 235, 0.1);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
