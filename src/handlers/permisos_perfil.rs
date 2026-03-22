@@ -15,6 +15,9 @@ pub struct PermisoPerfil {
     pub bit_consulta: bool,
     pub bit_eliminar: bool,
     pub bit_detalle: bool,
+    // 👇 AGREGAMOS ESTOS DOS CAMPOS (El frontend ya los está esperando)
+    pub nombre_perfil: Option<String>,
+    pub nombre_modulo: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -34,19 +37,24 @@ pub struct DatosPermiso {
 pub async fn listar_permisos(
     State(pool): State<PgPool>
 ) -> Result<Json<Vec<PermisoPerfil>>, StatusCode> {
+    // 👇 Modificamos el SQL para usar INNER JOIN y traer los textos reales
     let permisos = sqlx::query_as!(
         PermisoPerfil,
         r#"
         SELECT 
-            id as "id!", 
-            id_modulo as "id_modulo!", 
-            id_perfil as "id_perfil!", 
-            bit_agregar as "bit_agregar!", 
-            bit_editar as "bit_editar!", 
-            bit_consulta as "bit_consulta!", 
-            bit_eliminar as "bit_eliminar!", 
-            bit_detalle as "bit_detalle!" 
-        FROM permisos_perfil
+            pp.id as "id!", 
+            pp.id_modulo as "id_modulo!", 
+            pp.id_perfil as "id_perfil!", 
+            pp.bit_agregar as "bit_agregar!", 
+            pp.bit_editar as "bit_editar!", 
+            pp.bit_consulta as "bit_consulta!", 
+            pp.bit_eliminar as "bit_eliminar!", 
+            pp.bit_detalle as "bit_detalle!",
+            p.str_nombre_perfil as "nombre_perfil",
+            m.str_nombre_modulo as "nombre_modulo"
+        FROM permisos_perfil pp
+        INNER JOIN perfiles p ON pp.id_perfil = p.id
+        INNER JOIN modulos m ON pp.id_modulo = m.id
         "#
     )
     .fetch_all(&pool)
