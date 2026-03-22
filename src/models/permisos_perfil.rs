@@ -10,6 +10,9 @@ pub struct PermisoPerfil {
     pub id: i32,
     pub id_modulo: i32,
     pub id_perfil: i32,
+    // 👇 NUEVOS CAMPOS: Opcionales para recibir el JOIN de la BD
+    pub nombre_perfil: Option<String>, 
+    pub nombre_modulo: Option<String>, 
     pub bit_agregar: bool,
     pub bit_editar: bool,
     pub bit_consulta: bool,
@@ -17,7 +20,7 @@ pub struct PermisoPerfil {
     pub bit_detalle: bool,
 }
 
-// Esta estructura extra es para recibir los datos del formulario (sin el ID, porque el ID se autogenera)
+// Esta estructura extra es para recibir los datos del formulario 
 #[derive(Deserialize)]
 pub struct DatosPermiso {
     pub id_modulo: i32,
@@ -30,33 +33,36 @@ pub struct DatosPermiso {
 }
 
 /* ==========================================
-   LISTAR PERMISOS
+   LISTAR PERMISOS (Con JOIN para los nombres)
    ========================================== */
 pub async fn listar_permisos(
     State(pool): State<PgPool>
 ) -> Result<Json<Vec<PermisoPerfil>>, StatusCode> {
     
-    // Usamos el sufijo "!" en cada campo para indicarle a sqlx 
-    // que los datos en la BD NO son nulos y evitar el error E0277
+    // 👇 NUEVO QUERY: Hacemos JOIN con perfiles y modulos
     let permisos = sqlx::query_as!(
         PermisoPerfil,
         r#"
         SELECT 
-            id as "id!", 
-            id_modulo as "id_modulo!", 
-            id_perfil as "id_perfil!", 
-            bit_agregar as "bit_agregar!", 
-            bit_editar as "bit_editar!", 
-            bit_consulta as "bit_consulta!", 
-            bit_eliminar as "bit_eliminar!", 
-            bit_detalle as "bit_detalle!" 
-        FROM permisos_perfil
+            pp.id as "id!", 
+            pp.id_modulo as "id_modulo!", 
+            pp.id_perfil as "id_perfil!", 
+            pe.str_nombre_perfil as "nombre_perfil",
+            m.str_nombre_modulo as "nombre_modulo",
+            pp.bit_agregar as "bit_agregar!", 
+            pp.bit_editar as "bit_editar!", 
+            pp.bit_consulta as "bit_consulta!", 
+            pp.bit_eliminar as "bit_eliminar!", 
+            pp.bit_detalle as "bit_detalle!" 
+        FROM permisos_perfil pp
+        INNER JOIN perfiles pe ON pp.id_perfil = pe.id
+        INNER JOIN modulos m ON pp.id_modulo = m.id
+        ORDER BY pp.id ASC
         "#
     )
     .fetch_all(&pool)
     .await
     .map_err(|e| {
-        // Imprimimos el error en consola para debugging
         println!("Error en BD permisos_perfil: {:?}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
