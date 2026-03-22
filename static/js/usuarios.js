@@ -36,20 +36,20 @@ async function cargarUsuarios(pagina = 1) {
         usuarios.forEach(u => {
             const fotoUrl = u.imagen ? `/uploads/usuarios/${u.imagen}` : '/img/default.png';
             
-            // LOGICA PARA EL ESTADO ACTIVO/INACTIVO
             const esActivo = u.id_estado_usuario === true || u.id_estado_usuario === "true" || u.id_estado_usuario === 1;
             const estadoTexto = esActivo ? "Activo" : "Inactivo";
-            const estadoColor = esActivo ? "#10b981" : "#ef4444"; // Verde o Rojo
+            const estadoColor = esActivo ? "#10b981" : "#ef4444"; 
             
-            // Adapté las variables por si el backend manda nombre o str_nombre_usuario
             const nombreMostrar = u.nombre || u.str_nombre_usuario || "N/A";
+            const perfilMostrar = u.perfil || "Sin Perfil"; // NUEVO
             const emailMostrar = u.email || u.str_correo || "N/A";
             const celularMostrar = u.celular || u.str_numero_celular || "N/A";
             
             tabla.innerHTML += `
             <tr>
-                <td><img src="${fotoUrl}" class="user-img" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;"></td>
+                <td><img src="${fotoUrl}" class="user-img" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;"></td>
                 <td>${nombreMostrar}</td>
+                <td><span style="background: #e0e7ff; color: #4338ca; padding: 4px 8px; border-radius: 12px; font-size: 0.85rem; font-weight: bold;">${perfilMostrar}</span></td>
                 <td>${emailMostrar}</td>
                 <td>${celularMostrar}</td>
                 <td style="color: ${estadoColor}; font-weight: 600;">${estadoTexto}</td>
