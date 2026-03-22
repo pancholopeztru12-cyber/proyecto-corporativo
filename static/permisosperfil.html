@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Permisos por Perfil</title>
     <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        /* Un poco de estilo extra para que los checkboxes de módulos se vean bien */
+        .modulos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+            padding: 15px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+    </style>
 </head>
 <body>
 
@@ -26,18 +39,22 @@
                 
                 <div class="form-group">
                     <div>
-                        <label>Perfil:</label>
-                        <select id="select_perfil"><option value="">Seleccione Perfil</option></select>
-                    </div>
-                    <div>
-                        <label>Módulo:</label>
-                        <select id="select_modulo"><option value="">Seleccione Módulo</option></select>
+                        <label><b>1. Selecciona el Perfil:</b></label>
+                        <select id="select_perfil" style="width: 100%; max-width: 300px; margin-top: 5px;">
+                            <option value="">Seleccione Perfil</option>
+                        </select>
                     </div>
                 </div>
 
-                <div class="form-group" style="display: block;">
-                    <label><b>Acciones Permitidas:</b></label>
-                    <div class="checkbox-group">
+                <div class="form-group" style="display: block; margin-top: 20px;">
+                    <label><b>2. Selecciona los Módulos a los que aplica:</b></label>
+                    <div id="modulos_checkboxes" class="modulos-grid">
+                        </div>
+                </div>
+
+                <div class="form-group" style="display: block; margin-top: 20px;">
+                    <label><b>3. Acciones Permitidas para esos módulos:</b></label>
+                    <div class="checkbox-group" style="margin-top: 10px; padding: 15px; background: #f8fafc; border-radius: 6px; border: 1px dashed #cbd5e1;">
                         <label><input type="checkbox" id="bit_agregar"> Agregar</label>
                         <label><input type="checkbox" id="bit_editar"> Editar</label>
                         <label><input type="checkbox" id="bit_eliminar"> Eliminar</label>
@@ -46,7 +63,7 @@
                     </div>
                 </div>
                 
-                <div style="margin-top: 20px;">
+                <div style="margin-top: 30px;">
                     <button id="btn-guardar" class="btn-guardar" onclick="guardarPermiso()">Guardar Permisos</button>
                     <button class="btn-eliminar" style="background: #64748b !important; color: white !important; border: none !important; padding: 12px 20px !important;" onclick="limpiarFormulario()">Cancelar / Limpiar</button>
                 </div>

@@ -15,14 +15,14 @@ pub struct PermisoPerfil {
     pub bit_consulta: bool,
     pub bit_eliminar: bool,
     pub bit_detalle: bool,
-    // 👇 AGREGAMOS ESTOS DOS CAMPOS (El frontend ya los está esperando)
     pub nombre_perfil: Option<String>,
     pub nombre_modulo: Option<String>,
 }
 
+// 👇 CAMBIO CLAVE: id_modulo pasa a ser id_modulos (un Vec<i32> o arreglo)
 #[derive(Deserialize)]
 pub struct DatosPermiso {
-    pub id_modulo: i32,
+    pub id_modulos: Vec<i32>, 
     pub id_perfil: i32,
     pub bit_agregar: bool,
     pub bit_editar: bool,
@@ -66,32 +66,36 @@ pub async fn listar_permisos(
 }
 
 /* ==========================================
-   CREAR PERMISO
+   CREAR PERMISO (¡AHORA SOPORTA MÚLTIPLES!)
    ========================================== */
 pub async fn crear_permiso(
     State(pool): State<PgPool>,
     Json(data): Json<DatosPermiso>,
 ) -> Result<StatusCode, StatusCode> {
-    sqlx::query!(
-        r#"
-        INSERT INTO permisos_perfil 
-        (id_modulo, id_perfil, bit_agregar, bit_editar, bit_consulta, bit_eliminar, bit_detalle)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
-        "#,
-        data.id_modulo,
-        data.id_perfil,
-        data.bit_agregar,
-        data.bit_editar,
-        data.bit_consulta,
-        data.bit_eliminar,
-        data.bit_detalle
-    )
-    .execute(&pool)
-    .await
-    .map_err(|e| {
-        println!("Error insertando permiso: {:?}", e);
-        StatusCode::INTERNAL_SERVER_ERROR
-    })?;
+    
+    // 👇 Iteramos sobre la lista de módulos que nos manda el frontend
+    for modulo_id in &data.id_modulos {
+        sqlx::query!(
+            r#"
+            INSERT INTO permisos_perfil 
+            (id_modulo, id_perfil, bit_agregar, bit_editar, bit_consulta, bit_eliminar, bit_detalle)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            "#,
+            modulo_id, // Usamos el ID individual de este ciclo
+            data.id_perfil,
+            data.bit_agregar,
+            data.bit_editar,
+            data.bit_consulta,
+            data.bit_eliminar,
+            data.bit_detalle
+        )
+        .execute(&pool)
+        .await
+        .map_err(|e| {
+            println!("Error insertando permiso para el modulo {}: {:?}", modulo_id, e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+    }
 
     Ok(StatusCode::CREATED)
 }
@@ -104,6 +108,13 @@ pub async fn editar_permiso(
     State(pool): State<PgPool>,
     Json(data): Json<DatosPermiso>,
 ) -> Result<StatusCode, StatusCode> {
+    
+    // Como estamos editando UN solo registro, tomamos el primer módulo del array
+    let modulo_id = match data.id_modulos.first() {
+        Some(&id_mod) => id_mod,
+        None => return Err(StatusCode::BAD_REQUEST), // Error si viene vacío
+    };
+
     sqlx::query!(
         r#"
         UPDATE permisos_perfil 
@@ -111,7 +122,7 @@ pub async fn editar_permiso(
             bit_editar = $4, bit_consulta = $5, bit_eliminar = $6, bit_detalle = $7
         WHERE id = $8
         "#,
-        data.id_modulo,
+        modulo_id,
         data.id_perfil,
         data.bit_agregar,
         data.bit_editar,

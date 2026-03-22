@@ -28,17 +28,29 @@ async function cargarCatalogos() {
         if (resPerfiles.ok) {
             const perfiles = await resPerfiles.json();
             const selectP = document.getElementById("select_perfil");
+            // Limpiar antes de llenar para evitar duplicados
+            selectP.innerHTML = `<option value="">Seleccione Perfil</option>`; 
             perfiles.forEach(p => selectP.innerHTML += `<option value="${p.id}">${p.str_nombre_perfil || 'Perfil '+p.id}</option>`);
         }
 
-        // Cargar Módulos 
+        // Cargar Módulos (AHORA COMO CHECKBOXES)
         const resModulos = await fetch(`${API}/modulos`, { headers });
         if (manejarErroresFetch(resModulos)) return;
 
         if (resModulos.ok) {
             const modulos = await resModulos.json();
-            const selectM = document.getElementById("select_modulo");
-            modulos.forEach(m => selectM.innerHTML += `<option value="${m.id}">${m.str_nombre_modulo || 'Modulo '+m.id}</option>`);
+            const divModulos = document.getElementById("modulos_checkboxes");
+            divModulos.innerHTML = ""; // Limpiar contenedor
+            
+            modulos.forEach(m => {
+                const nombre = m.str_nombre_modulo || 'Modulo '+m.id;
+                divModulos.innerHTML += `
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                        <input type="checkbox" value="${m.id}" class="cb-modulo"> 
+                        ${nombre}
+                    </label>
+                `;
+            });
         }
     } catch (e) { console.error("Error cargando catálogos:", e); }
 }
@@ -124,20 +136,27 @@ async function guardarPermiso() {
     const token = localStorage.getItem("token");
     const id = document.getElementById("permiso_id").value;
     
+    // Recolectar todos los módulos que estén seleccionados
+    const checkboxesModulos = document.querySelectorAll('.cb-modulo:checked');
+    const modulosSeleccionados = Array.from(checkboxesModulos).map(cb => parseInt(cb.value));
+
+    const id_perfil = parseInt(document.getElementById("select_perfil").value);
+
+    if(!id_perfil || modulosSeleccionados.length === 0) {
+        alert("Debes seleccionar un Perfil y al menos un Módulo.");
+        return;
+    }
+
+    // NUEVO PAYLOAD: Enviamos 'id_modulos' como un arreglo (ej. [1, 2, 3])
     const payload = {
-        id_perfil: parseInt(document.getElementById("select_perfil").value),
-        id_modulo: parseInt(document.getElementById("select_modulo").value),
+        id_perfil: id_perfil,
+        id_modulos: modulosSeleccionados, 
         bit_agregar: document.getElementById("bit_agregar").checked,
         bit_editar: document.getElementById("bit_editar").checked,
         bit_eliminar: document.getElementById("bit_eliminar").checked,
         bit_consulta: document.getElementById("bit_consulta").checked,
         bit_detalle: document.getElementById("bit_detalle").checked
     };
-
-    if(!payload.id_perfil || !payload.id_modulo) {
-        alert("Debes seleccionar un Perfil y un Módulo.");
-        return;
-    }
 
     const metodo = id ? "PUT" : "POST";
     const url = id ? `${API}/permisos_perfil/${id}` : `${API}/permisos_perfil`;
@@ -159,7 +178,7 @@ async function guardarPermiso() {
             limpiarFormulario();
             cargarPermisos(paginaActual);
         } else {
-            alert("Error al guardar en la base de datos.");
+            alert("Error al guardar en la base de datos. Verifica la consola.");
         }
     } catch (error) { alert("Error de conexión"); }
 }
@@ -168,7 +187,13 @@ function editarPermiso(p) {
     document.getElementById("titulo-form").innerText = "Editar Permisos";
     document.getElementById("permiso_id").value = p.id;
     document.getElementById("select_perfil").value = p.id_perfil;
-    document.getElementById("select_modulo").value = p.id_modulo;
+    
+    // Primero, desmarcamos todos los módulos
+    document.querySelectorAll('.cb-modulo').forEach(cb => cb.checked = false);
+    
+    // Marcamos SOLO el módulo correspondiente al registro que estamos editando
+    const cbModulo = document.querySelector(`.cb-modulo[value="${p.id_modulo}"]`);
+    if(cbModulo) cbModulo.checked = true;
     
     document.getElementById("bit_agregar").checked = p.bit_agregar;
     document.getElementById("bit_editar").checked = p.bit_editar;
@@ -204,7 +229,8 @@ function limpiarFormulario() {
     document.getElementById("titulo-form").innerText = "Asignar Nuevos Permisos";
     document.getElementById("permiso_id").value = "";
     document.getElementById("select_perfil").value = "";
-    document.getElementById("select_modulo").value = "";
+    
+    // Esto desmarcará TODOS los checkboxes (módulos y acciones)
     document.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
 }
 
