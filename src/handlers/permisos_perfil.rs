@@ -37,21 +37,20 @@ pub struct DatosPermiso {
 pub async fn listar_permisos(
     State(pool): State<PgPool>
 ) -> Result<Json<Vec<PermisoPerfil>>, StatusCode> {
-    // 👇 Modificamos el SQL para usar INNER JOIN y traer los textos reales
-    let permisos = sqlx::query_as!(
-        PermisoPerfil,
+    // 👇 Usamos query_as::<_, PermisoPerfil> SIN el signo de exclamación
+    let permisos = sqlx::query_as::<_, PermisoPerfil>(
         r#"
         SELECT 
-            pp.id as "id!", 
-            pp.id_modulo as "id_modulo!", 
-            pp.id_perfil as "id_perfil!", 
-            pp.bit_agregar as "bit_agregar!", 
-            pp.bit_editar as "bit_editar!", 
-            pp.bit_consulta as "bit_consulta!", 
-            pp.bit_eliminar as "bit_eliminar!", 
-            pp.bit_detalle as "bit_detalle!",
-            p.str_nombre_perfil as "nombre_perfil",
-            m.str_nombre_modulo as "nombre_modulo"
+            pp.id, 
+            pp.id_modulo, 
+            pp.id_perfil, 
+            pp.bit_agregar, 
+            pp.bit_editar, 
+            pp.bit_consulta, 
+            pp.bit_eliminar, 
+            pp.bit_detalle,
+            p.str_nombre_perfil as nombre_perfil,
+            m.str_nombre_modulo as nombre_modulo
         FROM permisos_perfil pp
         INNER JOIN perfiles p ON pp.id_perfil = p.id
         INNER JOIN modulos m ON pp.id_modulo = m.id
