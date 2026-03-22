@@ -112,9 +112,9 @@ async function cargarPermisos(pagina = 1) {
                 <td>${check(p.bit_consulta)}</td>
                 <td>${check(p.bit_detalle)}</td>
                 <td class="acciones">
-                    <button onclick="mostrarDetalle(${p.id})" style="color:blue">Ver</button>
-                    <button onclick='editarPermiso(${JSON.stringify(p)})' style="color:orange">Editar</button>
-                    <button onclick="eliminarPermiso(${p.id})" style="color:red">Eliminar</button>
+                    <button onclick="mostrarDetalle(${p.id})" style="color:blue; border: 1px solid blue; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer;">Ver</button>
+                    <button onclick='editarPermiso(${JSON.stringify(p)})' style="color:orange; border: 1px solid orange; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer;">Editar</button>
+                    <button onclick="eliminarPermiso(${p.id})" style="color:red; border: 1px solid red; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer;">Eliminar</button>
                 </td>
             </tr>`;
         });
@@ -234,11 +234,24 @@ function limpiarFormulario() {
     document.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
 }
 
+/* ==========================================
+   INICIALIZACIÓN AL CARGAR LA PÁGINA
+   ========================================== */
 document.addEventListener("DOMContentLoaded", () => {
-    if (!localStorage.getItem("token")) {
+    const token = localStorage.getItem("token");
+    if (!token) {
         window.location.href = "/login.html";
         return;
     }
+
+    // --- NUEVO: MOSTRAR EL NOMBRE DEL USUARIO ---
+    const nombreGuardado = localStorage.getItem("nombre_usuario") || "Usuario";
+    const spanNombre = document.getElementById("nombre-usuario-nav");
+    if (spanNombre) {
+        spanNombre.innerText = nombreGuardado;
+    }
+    // --------------------------------------------
+
     cargarCatalogos();
     cargarMenuDinamico();
     cargarPermisos(1);
