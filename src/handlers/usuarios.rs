@@ -16,7 +16,7 @@ pub struct ParamsPaginacion {
 }
 
 /* ==========================================
-   LISTAR USUARIOS (CON PERFIL INCLUIDO)
+   LISTAR USUARIOS
    ========================================== */
 pub async fn listar(
     State(pool): State<PgPool>,
@@ -25,7 +25,6 @@ pub async fn listar(
     let limite = 5i64; 
     let offset = (params.pagina.unwrap_or(1) - 1) * limite;
 
-    // Nota: El struct Usuario en models/usuario.rs debe tener: pub perfil: Option<String>
     let usuarios = sqlx::query_as!(
         Usuario,
         r#"
@@ -56,7 +55,7 @@ pub async fn listar(
 }
 
 /* ==========================================
-   CREAR USUARIO
+   CREAR USUARIO (CON SUBIDA DE IMAGEN FÍSICA Y ESTADO)
    ========================================== */
 pub async fn crear_usuario(
     State(pool): State<PgPool>,
@@ -69,6 +68,8 @@ pub async fn crear_usuario(
     let mut str_correo: Option<String> = None;
     let mut str_numero_celular: Option<String> = None;
     let mut nombre_imagen_guardada: Option<String> = None;
+    
+    // NUEVO: Variable para capturar el estado desde el HTML
     let mut id_estado_usuario: bool = true; 
 
     while let Some(field) = multipart.next_field().await.unwrap() {
@@ -76,6 +77,7 @@ pub async fn crear_usuario(
 
         if name == "imagen_archivo" {
             let file_name = field.file_name().unwrap_or("").to_string();
+            
             if !file_name.is_empty() {
                 let file_ext = file_name.split('.').last().unwrap_or("jpg").to_string();
                 let bytes = field.bytes().await.unwrap();
@@ -93,6 +95,7 @@ pub async fn crear_usuario(
                 "id_perfil" => id_perfil = data.parse().unwrap_or(0),
                 "str_correo" => str_correo = if data.is_empty() { None } else { Some(data) },
                 "str_numero_celular" => str_numero_celular = if data.is_empty() { None } else { Some(data) },
+                // NUEVO: Capturamos el estado que manda el selector
                 "id_estado_usuario" => id_estado_usuario = data.parse().unwrap_or(true),
                 _ => {}
             }
@@ -117,7 +120,7 @@ pub async fn crear_usuario(
         str_correo,
         str_numero_celular,
         nombre_imagen_guardada,
-        id_estado_usuario
+        id_estado_usuario // <-- NUEVO: Guardamos el estado dinámico
     )
     .execute(&pool)
     .await

@@ -8,6 +8,7 @@ pub struct Usuario {
     pub celular: Option<String>, // Alias de str_numero_celular
     pub imagen: Option<String>,
     pub id_estado_usuario: Option<bool>,
+    pub perfil: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)] // Asegúrate de que tenga Clone
