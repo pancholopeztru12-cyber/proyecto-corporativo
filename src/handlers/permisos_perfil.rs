@@ -37,7 +37,6 @@ pub struct DatosPermiso {
 pub async fn listar_permisos(
     State(pool): State<PgPool>
 ) -> Result<Json<Vec<PermisoPerfil>>, StatusCode> {
-    // 👇 Usamos query_as::<_, PermisoPerfil> SIN el signo de exclamación
     let permisos = sqlx::query_as::<_, PermisoPerfil>(
         r#"
         SELECT 
@@ -52,8 +51,8 @@ pub async fn listar_permisos(
             p.str_nombre_perfil as nombre_perfil,
             m.str_nombre_modulo as nombre_modulo
         FROM permisos_perfil pp
-        INNER JOIN perfiles p ON pp.id_perfil = p.id
-        INNER JOIN modulos m ON pp.id_modulo = m.id
+        INNER JOIN perfil p ON pp.id_perfil = p.id
+        INNER JOIN modulo m ON pp.id_modulo = m.id
         "#
     )
     .fetch_all(&pool)
