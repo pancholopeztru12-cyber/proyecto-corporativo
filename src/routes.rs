@@ -35,6 +35,8 @@ pub fn create_routes(pool: PgPool) -> Router {
 
     // Rutas PÚBLICAS (Login y Home)
     Router::new()
+        // 👇 AQUÍ ESTÁ LA NUEVA RUTA DE PRUEBA (Bypass de seguridad)
+        .route("/test-version", get(|| async { "¡LA NUBE YA TIENE EL CODIGO NUEVO!" }))
         .route("/", get(home))
         // El login lo dejamos como estaba para no romper tu inicio de sesión actual
         .route("/login", post(login)) 
