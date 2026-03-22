@@ -37,8 +37,10 @@
             <div id="formulario">
                 <h3>Crear / Editar Usuario</h3>
                 <div class="form-group">
+                    <input type="hidden" id="usuario_id"> 
+                    
                     <input id="nuevo_usuario" placeholder="Nombre de Usuario">
-                    <input id="nuevo_password" type="password" placeholder="Password">
+                    <input id="nuevo_password" type="password" placeholder="Password (Dejar en blanco si no se cambia)">
                     <select id="nuevo_perfil"><option value="">Seleccione Perfil</option></select>
                     <input id="nuevo_correo" type="email" placeholder="Correo Electrónico">
                     <input id="nuevo_celular" placeholder="Número de Celular">
@@ -54,10 +56,9 @@
                     </div>
                 </div>
                 
-                <button id="btn-crear" class="btn-guardar" onclick="crearUsuario()">Guardar Usuario</button>
+                <button id="btn-crear" class="btn-guardar" onclick="guardarUsuario()">Guardar Usuario</button>
+                <button onclick="limpiarFormularioUsuario()" style="background: #9ca3af; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; margin-top: 10px; width: 100%;">Cancelar / Limpiar</button>
             </div>
-
-            <hr style="margin: 30px 0; border: 0; border-top: 1px solid var(--border);">
 
             <h3>Lista de Usuarios</h3>
             <table>

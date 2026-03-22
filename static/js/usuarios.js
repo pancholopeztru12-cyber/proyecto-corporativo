@@ -1,5 +1,6 @@
 const API = "/api";
 let paginaActual = 1;
+let listaUsuariosData = []; // Guardaremos temporalmente los usuarios aquí para poder editarlos
 
 /* ==========================================
    FUNCIÓN GLOBAL PARA MANEJAR ERRORES
@@ -30,6 +31,7 @@ async function cargarUsuarios(pagina = 1) {
         if (manejarErroresFetch(response)) return;
 
         const usuarios = await response.json();
+        listaUsuariosData = usuarios; // Guardamos la lista en memoria
         const tabla = document.getElementById("tablaUsuarios");
         tabla.innerHTML = "";
 
@@ -54,7 +56,8 @@ async function cargarUsuarios(pagina = 1) {
                 <td>${celularMostrar}</td>
                 <td style="color: ${estadoColor}; font-weight: 600;">${estadoTexto}</td>
                 <td>
-                    <button class="btn-eliminar" onclick="eliminarUsuario(${u.id})">Eliminar</button>
+                    <button class="btn-editar" onclick="editarUsuario(${u.id})" style="color:orange; border: 1px solid orange; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer;">Editar</button>
+                    <button class="btn-eliminar" onclick="eliminarUsuario(${u.id})" style="color:red; border: 1px solid red; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer; margin-left: 5px;">Eliminar</button>
                 </td>
             </tr>`;
         });
@@ -67,14 +70,56 @@ async function cargarUsuarios(pagina = 1) {
 }
 
 /* ==========================================
-   CREAR USUARIO 
+   EDITAR USUARIO (Cargar datos al formulario)
    ========================================== */
-async function crearUsuario() {
+function editarUsuario(id) {
+    // Buscamos el usuario en nuestra lista de memoria
+    const u = listaUsuariosData.find(user => user.id === id);
+    if (!u) return;
+
+    // Llenamos el formulario
+    document.getElementById("usuario_id").value = u.id;
+    document.getElementById("nuevo_usuario").value = u.nombre || u.str_nombre_usuario || "";
+    document.getElementById("nuevo_password").value = ""; // Se deja en blanco por seguridad
+    document.getElementById("nuevo_perfil").value = u.id_perfil || "";
+    document.getElementById("nuevo_correo").value = u.email || u.str_correo || "";
+    document.getElementById("nuevo_celular").value = u.celular || u.str_numero_celular || "";
+    
+    const esActivo = u.id_estado_usuario === true || u.id_estado_usuario === "true" || u.id_estado_usuario === 1;
+    document.getElementById("nuevo_estado").value = esActivo ? "true" : "false";
+
+    document.querySelector("#formulario h3").innerText = `Editar Usuario (ID: ${id})`;
+    window.scrollTo(0, 0); // Subir la pantalla
+}
+
+function limpiarFormularioUsuario() {
+    document.getElementById("usuario_id").value = "";
+    document.getElementById("nuevo_usuario").value = "";
+    document.getElementById("nuevo_password").value = "";
+    document.getElementById("nuevo_perfil").value = "";
+    document.getElementById("nuevo_correo").value = "";
+    document.getElementById("nuevo_celular").value = "";
+    document.getElementById("nuevo_estado").value = "true";
+    document.getElementById("imagen_usuario").value = "";
+    document.querySelector("#formulario h3").innerText = "Crear / Editar Usuario";
+}
+
+/* ==========================================
+   GUARDAR (CREAR O ACTUALIZAR) USUARIO 
+   ========================================== */
+async function guardarUsuario() {
     const token = localStorage.getItem("token");
+    const id = document.getElementById("usuario_id").value; // Si hay ID, es edición
     
     const formData = new FormData();
     formData.append("str_nombre_usuario", document.getElementById("nuevo_usuario").value);
-    formData.append("str_pwd", document.getElementById("nuevo_password").value);
+    
+    // Solo enviar el password si el usuario escribió algo (para no sobreescribirlo en blanco)
+    const password = document.getElementById("nuevo_password").value;
+    if (password) {
+        formData.append("str_pwd", password);
+    }
+
     formData.append("id_perfil", document.getElementById("nuevo_perfil").value);
     formData.append("str_correo", document.getElementById("nuevo_correo").value);
     formData.append("str_numero_celular", document.getElementById("nuevo_celular").value);
@@ -90,9 +135,12 @@ async function crearUsuario() {
         return;
     }
 
+    const metodo = id ? "PUT" : "POST";
+    const url = id ? `${API}/usuarios/${id}` : `${API}/usuarios`;
+
     try {
-        const response = await fetch(`${API}/usuarios`, {
-            method: "POST",
+        const response = await fetch(url, {
+            method: metodo,
             headers: {
                 "Authorization": `Bearer ${token}`
             },
@@ -102,13 +150,8 @@ async function crearUsuario() {
         if (manejarErroresFetch(response)) return;
 
         if (response.ok) {
-            alert("Usuario guardado con éxito");
-            document.getElementById("nuevo_usuario").value = "";
-            document.getElementById("nuevo_password").value = "";
-            document.getElementById("nuevo_correo").value = "";
-            document.getElementById("nuevo_celular").value = "";
-            document.getElementById("imagen_usuario").value = "";
-            
+            alert(id ? "Usuario actualizado con éxito" : "Usuario guardado con éxito");
+            limpiarFormularioUsuario();
             cargarUsuarios(paginaActual);
         } else {
             alert("Error al guardar usuario. Verifique los datos.");
@@ -174,12 +217,12 @@ async function cargarMenuDinamico() {
                     if (m.id === 4 || !moduloActual) moduloActual = m;
                 }
 
-                const nombreLow = nombre.toLowerCase();
+                const nombreLow = nombre.toLowerCase().replace(/\s+/g, '');
                 if (["perfil", "módulo", "modulo", "permisos-perfil", "permisosperfil", "usuario"].includes(nombreLow)) {
                     menuSeguridad.push(nombre);
-                } else if (["principal 1.1", "principal 1.2"].includes(nombreLow)) {
+                } else if (["principal1.1", "principal1.2"].includes(nombreLow)) {
                     menuPrincipal1.push(nombre);
-                } else if (["principal 2.1", "principal 2.2"].includes(nombreLow)) {
+                } else if (["principal2.1", "principal2.2"].includes(nombreLow)) {
                     menuPrincipal2.push(nombre);
                 } else {
                     menuSeguridad.push(nombre); 
@@ -191,8 +234,13 @@ async function cargarMenuDinamico() {
             if (menuSeguridad.length > 0) {
                 htmlMenu += `<li><strong style="color:#333;">Seguridad</strong><ul style="list-style:circle; padding-left:20px; margin-top:5px;">`;
                 menuSeguridad.forEach(nombre => {
-                    const link = nombre.toLowerCase() === 'usuario' ? 'usuarios.html' : `${nombre.toLowerCase().replace(" ", "")}.html`;
-                    htmlMenu += `<li><a href="/${link}">${nombre}</a></li>`;
+                    let link = `${nombre.toLowerCase().replace(/\s+/g, '')}.html`;
+                    
+                    // EXCEPCIONES PARA ARREGLAR EL ERROR 404
+                    if (nombre.toLowerCase() === 'usuario') link = 'usuarios.html';
+                    if (nombre.toLowerCase() === 'perfil') link = 'perfiles.html'; 
+                    
+                    htmlMenu += `<li><a style="color: #cbd5e1; text-decoration: none;" href="/${link}">${nombre}</a></li>`;
                 });
                 htmlMenu += `</ul></li>`;
             }
@@ -200,8 +248,8 @@ async function cargarMenuDinamico() {
             if (menuPrincipal1.length > 0) {
                 htmlMenu += `<li style="margin-top:15px;"><strong style="color:#333;">Principal 1</strong><ul style="list-style:circle; padding-left:20px; margin-top:5px;">`;
                 menuPrincipal1.forEach(nombre => {
-                    const link = `${nombre.toLowerCase().replace(" ", "")}.html`;
-                    htmlMenu += `<li><a href="/${link}">${nombre}</a></li>`;
+                    const link = `${nombre.toLowerCase().replace(/\s+/g, '')}.html`;
+                    htmlMenu += `<li><a style="color: #cbd5e1; text-decoration: none;" href="/${link}">${nombre}</a></li>`;
                 });
                 htmlMenu += `</ul></li>`;
             }
@@ -209,19 +257,20 @@ async function cargarMenuDinamico() {
             if (menuPrincipal2.length > 0) {
                 htmlMenu += `<li style="margin-top:15px;"><strong style="color:#333;">Principal 2</strong><ul style="list-style:circle; padding-left:20px; margin-top:5px;">`;
                 menuPrincipal2.forEach(nombre => {
-                    const link = `${nombre.toLowerCase().replace(" ", "")}.html`;
-                    htmlMenu += `<li><a href="/${link}">${nombre}</a></li>`;
+                    const link = `${nombre.toLowerCase().replace(/\s+/g, '')}.html`;
+                    htmlMenu += `<li><a style="color: #cbd5e1; text-decoration: none;" href="/${link}">${nombre}</a></li>`;
                 });
                 htmlMenu += `</ul></li>`;
             }
 
             lista.innerHTML = htmlMenu;
 
+            // Resto de la lógica de permisos de botones (ocultar botón crear/eliminar si no tiene permiso)
             if (moduloActual) {
                 const noPuedeAgregar = (moduloActual.agregar === false || moduloActual.agregar === 0 || moduloActual.bit_agregar === false || moduloActual.bit_agregar === 0);
                 const noPuedeEliminar = (moduloActual.eliminar === false || moduloActual.eliminar === 0 || moduloActual.bit_eliminar === false || moduloActual.bit_eliminar === 0);
 
-                const btnCrear = document.getElementById("btn-crear") || document.querySelector('.btn-success');
+                const btnCrear = document.getElementById("btn-crear");
                 if (btnCrear) {
                     btnCrear.style.display = noPuedeAgregar ? "none" : "block";
                 }
@@ -263,7 +312,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    // NUEVO: Mostrar el nombre del usuario logueado
     const nombreGuardado = localStorage.getItem("nombre_usuario") || "Usuario";
     const spanNombre = document.getElementById("nombre-usuario-nav");
     if (spanNombre) {
