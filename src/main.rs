@@ -14,7 +14,7 @@ mod models;
 async fn main() {
     dotenv().ok();
 
-    // Conexión a la base de datos
+    // Conexión a la base de dato
     let pool = db::connect_db().await;
 
     println!("Conectado a PostgreSQL correctamente");
