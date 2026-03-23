@@ -12,7 +12,7 @@ pub struct PermisoPerfil {
     pub id_perfil: i32,
     pub bit_agregar: bool,
     pub bit_editar: bool,
-    pub bit_consulta: bool,
+    pub bit_consulta: bool,a
     pub bit_eliminar: bool,
     pub bit_detalle: bool,
 }

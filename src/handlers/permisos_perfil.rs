@@ -101,7 +101,7 @@ pub async fn crear_permiso(
 }
 
 /* ==========================================
-   EDITAR PERMISO
+   EDITAR PERMISO (CORREGIDO PARA MÚLTIPLES)
    ========================================== */
 pub async fn editar_permiso(
     Path(id): Path<i32>,
@@ -109,38 +109,41 @@ pub async fn editar_permiso(
     Json(data): Json<DatosPermiso>,
 ) -> Result<StatusCode, StatusCode> {
     
-    // Como estamos editando UN solo registro, tomamos el primer módulo del array
-    let modulo_id = match data.id_modulos.first() {
-        Some(&id_mod) => id_mod,
-        None => return Err(StatusCode::BAD_REQUEST), // Error si viene vacío
-    };
+    // 1. Borramos el permiso individual que se estaba editando
+    sqlx::query!("DELETE FROM permisos_perfil WHERE id = $1", id)
+        .execute(&pool)
+        .await
+        .map_err(|e| {
+            println!("Error eliminando permiso viejo al editar: {:?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
 
-    sqlx::query!(
-        r#"
-        UPDATE permisos_perfil 
-        SET id_modulo = $1, id_perfil = $2, bit_agregar = $3, 
-            bit_editar = $4, bit_consulta = $5, bit_eliminar = $6, bit_detalle = $7
-        WHERE id = $8
-        "#,
-        modulo_id,
-        data.id_perfil,
-        data.bit_agregar,
-        data.bit_editar,
-        data.bit_consulta,
-        data.bit_eliminar,
-        data.bit_detalle,
-        id
-    )
-    .execute(&pool)
-    .await
-    .map_err(|e| {
-        println!("Error actualizando permiso: {:?}", e);
-        StatusCode::INTERNAL_SERVER_ERROR
-    })?;
+    // 2. Insertamos TODOS los módulos que el usuario haya dejado marcados
+    for modulo_id in &data.id_modulos {
+        sqlx::query!(
+            r#"
+            INSERT INTO permisos_perfil 
+            (id_modulo, id_perfil, bit_agregar, bit_editar, bit_consulta, bit_eliminar, bit_detalle)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            "#,
+            modulo_id,
+            data.id_perfil,
+            data.bit_agregar,
+            data.bit_editar,
+            data.bit_consulta,
+            data.bit_eliminar,
+            data.bit_detalle
+        )
+        .execute(&pool)
+        .await
+        .map_err(|e| {
+            println!("Error insertando permisos actualizados: {:?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+    }
 
     Ok(StatusCode::OK)
 }
-
 /* ==========================================
    ELIMINAR PERMISO
    ========================================== */
