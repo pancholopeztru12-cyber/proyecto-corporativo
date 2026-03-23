@@ -252,7 +252,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    // --- NUEVO: MOSTRAR EL NOMBRE DEL USUARIO ---
+    // --- NUEVO: MOSTRAR EL NOMBRE DEL USUARIooo---
     const nombreGuardado = localStorage.getItem("nombre_usuario") || "Usuario";
     const spanNombre = document.getElementById("nombre-usuario-nav");
     if (spanNombre) {
