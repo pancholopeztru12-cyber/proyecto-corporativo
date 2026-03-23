@@ -120,7 +120,7 @@ async function eliminarPerfil(id) {
     }
 }
 
-/* === MENÚ DINÁMICO (El mismo de Usuarios) === */
+/* === MENÚ DINÁMICO === */
 async function cargarMenuDinamico() {
     const token = localStorage.getItem("token");
     try {
@@ -162,14 +162,17 @@ async function cargarMenuDinamico() {
                 htmlMenu += `<li><strong style="color:#333;">Seguridad</strong><ul style="list-style:circle; padding-left:20px; margin-top:5px;">`;
                 menuSeguridad.forEach(nombre => {
                     let link = `${nombre.toLowerCase().replace(/\s+/g, '')}.html`;
+                    
+                    // EXCEPCIONES PARA ARREGLAR EL ERROR 404
                     if (nombre.toLowerCase() === 'usuario') link = 'usuarios.html';
                     if (nombre.toLowerCase() === 'perfil') link = 'perfiles.html'; 
+                    if (nombre.toLowerCase() === 'modulo' || nombre.toLowerCase() === 'módulo') link = 'modulos.html'; 
+                    
                     htmlMenu += `<li><a style="color: #cbd5e1; text-decoration: none;" href="/${link}">${nombre}</a></li>`;
                 });
                 htmlMenu += `</ul></li>`;
             }
 
-            // (Omito la lógica visual extra para no hacer tan largo el código, el menú cargará igual)
             if (menuPrincipal1.length > 0) {
                 htmlMenu += `<li style="margin-top:15px;"><strong style="color:#333;">Principal 1</strong><ul style="list-style:circle; padding-left:20px; margin-top:5px;">`;
                 menuPrincipal1.forEach(nombre => {
