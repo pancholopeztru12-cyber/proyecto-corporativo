@@ -48,14 +48,13 @@ pub async fn obtener_menu_permisos(
         r#"
         SELECT 
             m.str_nombre_modulo as "nombre!",
-            mn.id_menu as "menu!",
+            0 as "menu!",
             pp.bit_agregar as "agregar!",
             pp.bit_editar as "editar!",
             pp.bit_eliminar as "eliminar!",
             pp.bit_consulta as "consulta!"
         FROM modulo m
         JOIN permisos_perfil pp ON m.id = pp.id_modulo
-        JOIN menu mn ON m.id = mn.id_modulo
         WHERE pp.id_perfil = $1 
           AND (pp.bit_agregar OR pp.bit_editar OR pp.bit_eliminar OR pp.bit_consulta)
         "#,
