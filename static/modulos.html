@@ -1,37 +1,50 @@
-<h2>Módulos</h2>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Módulos</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
 
-<button onclick="cargar()">Cargar módulos</button>
+    <div class="top-header">
+        <div class="breadcrumb">Seguridad > <b>Módulos</b></div>
+        <div class="user-welcome">
+            👋 Bienvenido: <span id="nombre-usuario-nav">...</span>
+        </div>
+    </div>
 
-<ul id="lista"></ul>
+    <div class="container">
+        <aside id="menu-lateral">
+            <h3>Menú</h3>
+            <ul id="lista-menu"></ul>
+            <hr>
+            <button onclick="localStorage.clear(); location.href='/login.html'" style="width:100%">Salir</button>
+        </aside>
 
-<script>
+        <main class="content">
+            <h2>Catálogo de Módulos</h2>
+            
+            <div style="margin-bottom: 20px;">
+                <button class="btn-guardar" onclick="cargarModulos()" style="background: #4f46e5; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                    🔄 Recargar Módulos
+                </button>
+            </div>
 
-async function cargar(){
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre del Módulo</th>
+                        <th>Ruta</th> </tr>
+                </thead>
+                <tbody id="tablaModulos">
+                    </tbody>
+            </table>
+        </main>
+    </div>
 
-    const token = localStorage.getItem("token");
-
-    const response = await fetch("/modulos",{
-        headers:{
-            "Authorization": "Bearer " + token
-        }
-    });
-
-    const data = await response.json();
-
-    const lista = document.getElementById("lista");
-
-    lista.innerHTML="";
-
-    data.forEach(m=>{
-
-        const li=document.createElement("li");
-
-        li.innerText=m;
-
-        lista.appendChild(li);
-
-    });
-
-}
-
-</script>
+    <script src="/js/modulos.js"></script>
+</body>
+</html>
