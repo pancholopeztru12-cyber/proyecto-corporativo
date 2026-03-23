@@ -287,7 +287,7 @@ async function cargarMenuDinamico() {
 }
 
 /* ==========================================
-   ELIMINAR USUARIO
+   ELIMINAR USUARioooo
    ========================================== */
 async function eliminarUsuario(id) {
     if(confirm("¿Seguro que deseas desactivar este usuario?")) {
