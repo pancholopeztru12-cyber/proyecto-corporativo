@@ -70,7 +70,15 @@ async function cargarMenuDinamico() {
             lista.innerHTML = "";
             modulos.forEach(m => {
                 const nombre = m.nombre; 
-                const link = nombre.toLowerCase() === 'usuario' ? 'usuarios.html' : `${nombre.toLowerCase()}.html`;
+                let link = `${nombre.toLowerCase()}.html`; // Por defecto: nombre_modulo.html
+                
+                // Excepciones para archivos en plural
+                if (nombre.toLowerCase() === 'usuario') {
+                    link = 'usuarios.html';
+                } else if (nombre.toLowerCase() === 'perfil') {
+                    link = 'perfiles.html';
+                }
+
                 lista.innerHTML += `<li><a href="/${link}">${nombre}</a></li>`;
             });
         }
