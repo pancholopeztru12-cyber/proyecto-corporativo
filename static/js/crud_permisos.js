@@ -55,32 +55,77 @@ async function cargarCatalogos() {
     } catch (e) { console.error("Error cargando catálogos:", e); }
 }
 
+/* === CARGAR MENÚ DINÁMICO (CORREGIDO Y ACTUALIZADO) === */
 async function cargarMenuDinamico() {
     const token = localStorage.getItem("token");
     try {
         const response = await fetch(`${API}/menu-dinamico`, {
             headers: { "Authorization": `Bearer ${token}` }
         });
-        
+
         if (manejarErroresFetch(response)) return;
 
         if (response.ok) {
             const modulos = await response.json();
             const lista = document.getElementById("lista-menu");
+            if (!lista) return;
+            
             lista.innerHTML = "";
-            modulos.forEach(m => {
-                const nombre = m.nombre; 
-                let link = `${nombre.toLowerCase()}.html`; // Por defecto: nombre_modulo.html
-                
-                // Excepciones para archivos en plural
-                if (nombre.toLowerCase() === 'usuario') {
-                    link = 'usuarios.html';
-                } else if (nombre.toLowerCase() === 'perfil') {
-                    link = 'perfiles.html';
-                }
+            const menuSeguridad = [];
+            const menuPrincipal1 = [];
+            const menuPrincipal2 = [];
 
-                lista.innerHTML += `<li><a href="/${link}">${nombre}</a></li>`;
+            modulos.forEach(m => {
+                const nombre = m.nombre || m.str_nombre_modulo || m.str_nombre; 
+                if (!nombre) return;
+
+                const nombreLow = nombre.toLowerCase().replace(/\s+/g, '');
+                if (["perfil", "módulo", "modulo", "permisos-perfil", "permisosperfil", "usuario"].includes(nombreLow)) {
+                    menuSeguridad.push(nombre);
+                } else if (["principal1.1", "principal1.2"].includes(nombreLow)) {
+                    menuPrincipal1.push(nombre);
+                } else if (["principal2.1", "principal2.2"].includes(nombreLow)) {
+                    menuPrincipal2.push(nombre);
+                } else {
+                    menuSeguridad.push(nombre); 
+                }
             });
+
+            let htmlMenu = "";
+
+            if (menuSeguridad.length > 0) {
+                htmlMenu += `<li><strong style="color:#333;">Seguridad</strong><ul style="list-style:circle; padding-left:20px; margin-top:5px;">`;
+                menuSeguridad.forEach(nombre => {
+                    let link = `${nombre.toLowerCase().replace(/\s+/g, '')}.html`;
+                    
+                    if (nombre.toLowerCase() === 'usuario') link = 'usuarios.html';
+                    if (nombre.toLowerCase() === 'perfil') link = 'perfiles.html'; 
+                    if (nombre.toLowerCase() === 'modulo' || nombre.toLowerCase() === 'módulo') link = 'modulos.html'; 
+                    
+                    htmlMenu += `<li><a style="color: #cbd5e1; text-decoration: none;" href="/${link}">${nombre}</a></li>`;
+                });
+                htmlMenu += `</ul></li>`;
+            }
+
+            if (menuPrincipal1.length > 0) {
+                htmlMenu += `<li style="margin-top:15px;"><strong style="color:#333;">Principal 1</strong><ul style="list-style:circle; padding-left:20px; margin-top:5px;">`;
+                menuPrincipal1.forEach(nombre => {
+                    const link = `${nombre.toLowerCase().replace(/\s+/g, '')}.html`;
+                    htmlMenu += `<li><a style="color: #cbd5e1; text-decoration: none;" href="/${link}">${nombre}</a></li>`;
+                });
+                htmlMenu += `</ul></li>`;
+            }
+
+            if (menuPrincipal2.length > 0) {
+                htmlMenu += `<li style="margin-top:15px;"><strong style="color:#333;">Principal 2</strong><ul style="list-style:circle; padding-left:20px; margin-top:5px;">`;
+                menuPrincipal2.forEach(nombre => {
+                    const link = `${nombre.toLowerCase().replace(/\s+/g, '')}.html`;
+                    htmlMenu += `<li><a style="color: #cbd5e1; text-decoration: none;" href="/${link}">${nombre}</a></li>`;
+                });
+                htmlMenu += `</ul></li>`;
+            }
+
+            lista.innerHTML = htmlMenu;
         }
     } catch (e) { console.error("Error menú:", e); }
 }
