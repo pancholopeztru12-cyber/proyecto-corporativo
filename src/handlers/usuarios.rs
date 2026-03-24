@@ -133,38 +133,78 @@ pub async fn crear_usuario(
 }
 
 /* ==========================================
-   EDITAR USUARIO
+   EDITAR USUARIO (CON SOPORTE PARA IMAGEN Y PASSWORD)
    ========================================== */
-#[derive(Deserialize)]
-pub struct EditarUsuario {
-    pub str_nombre_usuario: String,
-    pub id_perfil: i32,
-    pub str_correo: Option<String>,
-    pub str_numero_celular: Option<String>,
-    pub imagen: Option<String>,
-}
-
 pub async fn editar_usuario(
     Path(id): Path<i32>,
     State(pool): State<PgPool>,
-    Json(data): Json<EditarUsuario>,
+    mut multipart: Multipart,
 ) -> Result<StatusCode, StatusCode> {
+    
+    let mut str_nombre_usuario: Option<String> = None;
+    let mut str_pwd: Option<String> = None;
+    let mut id_perfil: Option<i32> = None;
+    let mut str_correo: Option<String> = None;
+    let mut str_numero_celular: Option<String> = None;
+    let mut id_estado_usuario: Option<bool> = None;
+    let mut nombre_imagen_guardada: Option<String> = None;
+
+    // Abrimos la "caja" FormData que manda Javascript
+    while let Some(field) = multipart.next_field().await.unwrap() {
+        let name = field.name().unwrap().to_string();
+
+        if name == "imagen_archivo" {
+            let file_name = field.file_name().unwrap_or("").to_string();
+            if !file_name.is_empty() {
+                let file_ext = file_name.split('.').last().unwrap_or("jpg").to_string();
+                let bytes = field.bytes().await.unwrap();
+                let unique_name = format!("{}.{}", Uuid::new_v4(), file_ext);
+                let save_path = format!("uploads/usuarios/{}", unique_name);
+                
+                std::fs::write(&save_path, bytes).unwrap();
+                nombre_imagen_guardada = Some(unique_name);
+            }
+        } else {
+            let data = field.text().await.unwrap();
+            match name.as_str() {
+                "str_nombre_usuario" => str_nombre_usuario = Some(data),
+                "str_pwd" => if !data.is_empty() { str_pwd = Some(data) }, // Solo si escribió algo
+                "id_perfil" => id_perfil = Some(data.parse().unwrap_or(0)),
+                "str_correo" => str_correo = if data.is_empty() { None } else { Some(data) },
+                "str_numero_celular" => str_numero_celular = if data.is_empty() { None } else { Some(data) },
+                "id_estado_usuario" => id_estado_usuario = Some(data.parse().unwrap_or(true)),
+                _ => {}
+            }
+        }
+    }
+
+    // Si mandó password nuevo, lo encriptamos
+    let pwd_hasheado = match str_pwd {
+        Some(pwd) => Some(hash(&pwd, DEFAULT_COST).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?),
+        None => None,
+    };
+
+    // Usamos COALESCE en SQL para NO borrar los datos viejos si el campo viene vacío (ej. si no sube foto nueva)
     sqlx::query!(
         r#"
         UPDATE usuario
         SET 
-            str_nombre_usuario = $1,
-            id_perfil = $2,
+            str_nombre_usuario = COALESCE($1, str_nombre_usuario),
+            id_perfil = COALESCE($2, id_perfil),
             str_correo = $3,
             str_numero_celular = $4,
-            imagen = $5
-        WHERE id = $6
+            imagen = COALESCE($5, imagen),
+            id_estado_usuario = COALESCE($6, id_estado_usuario),
+            str_pwd = COALESCE($7, str_pwd)
+        WHERE id = $8
         "#,
-        data.str_nombre_usuario,
-        data.id_perfil,
-        data.str_correo,
-        data.str_numero_celular,
-        data.imagen,
+        str_nombre_usuario,
+        id_perfil,
+        str_correo,
+        str_numero_celular,
+        nombre_imagen_guardada,
+        id_estado_usuario,
+        pwd_hasheado,
         id
     )
     .execute(&pool)
