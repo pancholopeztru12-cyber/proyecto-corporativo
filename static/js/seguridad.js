@@ -27,6 +27,7 @@
 
         if (response.ok) {
             const modulosPermitidos = await response.json();
+            console.log("Página actual:", paginaActual, "Módulos permitidos:", modulosPermitidos);
             
             // Comparamos el nombre de la página actual con los módulos que le devolvió la BD
             const tienePermiso = modulosPermitidos.some(m => {
