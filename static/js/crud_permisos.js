@@ -1,5 +1,6 @@
 const API = "/api";
 let paginaActual = 1;
+let permisosActuales = []; // 🌟 NUEVO: Aquí guardaremos los permisos en memoria
 
 /* === FUNCIÓN GLOBAL DE ERRORES === */
 function manejarErroresFetch(response) {
@@ -28,19 +29,18 @@ async function cargarCatalogos() {
         if (resPerfiles.ok) {
             const perfiles = await resPerfiles.json();
             const selectP = document.getElementById("select_perfil");
-            // Limpiar antes de llenar para evitar duplicados
             selectP.innerHTML = `<option value="">Seleccione Perfil</option>`; 
             perfiles.forEach(p => selectP.innerHTML += `<option value="${p.id}">${p.str_nombre_perfil || 'Perfil '+p.id}</option>`);
         }
 
-        // Cargar Módulos (AHORA COMO CHECKBOXES)
+        // Cargar Módulos
         const resModulos = await fetch(`${API}/modulos`, { headers });
         if (manejarErroresFetch(resModulos)) return;
 
         if (resModulos.ok) {
             const modulos = await resModulos.json();
             const divModulos = document.getElementById("modulos_checkboxes");
-            divModulos.innerHTML = ""; // Limpiar contenedor
+            divModulos.innerHTML = ""; 
             
             modulos.forEach(m => {
                 const nombre = m.str_nombre_modulo || 'Modulo '+m.id;
@@ -55,7 +55,7 @@ async function cargarCatalogos() {
     } catch (e) { console.error("Error cargando catálogos:", e); }
 }
 
-/* === CARGAR MENÚ DINÁMICO (CORREGIDO Y ACTUALIZADO) === */
+/* === CARGAR MENÚ DINÁMICO === */
 async function cargarMenuDinamico() {
     const token = localStorage.getItem("token");
     try {
@@ -97,11 +97,9 @@ async function cargarMenuDinamico() {
                 htmlMenu += `<li><strong style="color:#333;">Seguridad</strong><ul style="list-style:circle; padding-left:20px; margin-top:5px;">`;
                 menuSeguridad.forEach(nombre => {
                     let link = `${nombre.toLowerCase().replace(/\s+/g, '')}.html`;
-                    
                     if (nombre.toLowerCase() === 'usuario') link = 'usuarios.html';
                     if (nombre.toLowerCase() === 'perfil') link = 'perfiles.html'; 
                     if (nombre.toLowerCase() === 'modulo' || nombre.toLowerCase() === 'módulo') link = 'modulos.html'; 
-                    
                     htmlMenu += `<li><a style="color: #cbd5e1; text-decoration: none;" href="/${link}">${nombre}</a></li>`;
                 });
                 htmlMenu += `</ul></li>`;
@@ -131,7 +129,7 @@ async function cargarMenuDinamico() {
 }
 
 /* ==========================================
-   CRUD: CONSULTAR Y PAGINACIÓN
+   CRUD: CONSULTAR, FILTRAR Y PAGINACIÓN
    ========================================== */
 async function cargarPermisos(pagina = 1) {
     paginaActual = pagina;
@@ -145,35 +143,61 @@ async function cargarPermisos(pagina = 1) {
         if (manejarErroresFetch(response)) return;
 
         const permisos = await response.json();
-        const tabla = document.getElementById("tablaPermisos");
-        tabla.innerHTML = "";
-
-        // Renderizado de tabla
-        permisos.forEach(p => {
-            const check = (val) => val ? "✅" : "❌";
-            const nombrePerfil = p.nombre_perfil || `ID: ${p.id_perfil}`;
-            const nombreModulo = p.nombre_modulo || `ID: ${p.id_modulo}`;
-
-            tabla.innerHTML += `
-            <tr>
-                <td>${p.id}</td>
-                <td>${nombrePerfil}</td>
-                <td>${nombreModulo}</td>
-                <td>${check(p.bit_agregar)}</td>
-                <td>${check(p.bit_editar)}</td>
-                <td>${check(p.bit_eliminar)}</td>
-                <td>${check(p.bit_consulta)}</td>
-                <td>${check(p.bit_detalle)}</td>
-                <td class="acciones">
-                    <button onclick="mostrarDetalle(${p.id})" style="color:blue; border: 1px solid blue; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer;">Ver</button>
-                    <button onclick='editarPermiso(${JSON.stringify(p)})' style="color:orange; border: 1px solid orange; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer;">Editar</button>
-                    <button onclick="eliminarPermiso(${p.id})" style="color:red; border: 1px solid red; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer;">Eliminar</button>
-                </td>
-            </tr>`;
-        });
+        
+        // 🌟 NUEVO: Guardamos los datos en memoria en lugar de dibujarlos directo
+        permisosActuales = permisos; 
+        
+        // 🌟 NUEVO: Llamamos a la función que dibuja la tabla filtrada
+        renderizarTabla();
 
         document.getElementById("infoPagina").innerText = `Página ${paginaActual}`;
     } catch (error) { console.error("Error cargando permisos:", error); }
+}
+
+// 🌟 NUEVA FUNCIÓN: Se encarga de dibujar solo lo que el selector pide
+function renderizarTabla() {
+    const idPerfilSeleccionado = document.getElementById("select_perfil").value;
+    const tabla = document.getElementById("tablaPermisos");
+    tabla.innerHTML = ""; // Limpiamos la tabla
+
+    // Si no hay perfil seleccionado en el combo de arriba, mostramos un mensaje bonito
+    if (idPerfilSeleccionado === "") {
+        tabla.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 30px; color: #64748b; font-size: 16px;">👆 Selecciona un perfil en el formulario de arriba para ver o editar sus permisos.</td></tr>`;
+        return;
+    }
+
+    // Filtramos los permisos en memoria para dejar solo los del perfil seleccionado
+    const permisosFiltrados = permisosActuales.filter(p => p.id_perfil == idPerfilSeleccionado);
+
+    // Si elegimos un perfil que aún no tiene nada asignado
+    if (permisosFiltrados.length === 0) {
+        tabla.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 20px; color: #ef4444;">Este perfil aún no tiene permisos asignados.</td></tr>`;
+        return;
+    }
+
+    // Si sí tiene permisos, los dibujamos
+    permisosFiltrados.forEach(p => {
+        const check = (val) => val ? "✅" : "❌";
+        const nombrePerfil = p.nombre_perfil || `ID: ${p.id_perfil}`;
+        const nombreModulo = p.nombre_modulo || `ID: ${p.id_modulo}`;
+
+        tabla.innerHTML += `
+        <tr>
+            <td>${p.id}</td>
+            <td>${nombrePerfil}</td>
+            <td>${nombreModulo}</td>
+            <td>${check(p.bit_agregar)}</td>
+            <td>${check(p.bit_editar)}</td>
+            <td>${check(p.bit_eliminar)}</td>
+            <td>${check(p.bit_consulta)}</td>
+            <td>${check(p.bit_detalle)}</td>
+            <td class="acciones">
+                <button onclick="mostrarDetalle(${p.id})" style="color:blue; border: 1px solid blue; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer;">Ver</button>
+                <button onclick='editarPermiso(${JSON.stringify(p)})' style="color:orange; border: 1px solid orange; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer;">Editar</button>
+                <button onclick="eliminarPermiso(${p.id})" style="color:red; border: 1px solid red; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer;">Eliminar</button>
+            </td>
+        </tr>`;
+    });
 }
 
 function cambiarPagina(delta) {
@@ -189,7 +213,6 @@ async function guardarPermiso() {
     const token = localStorage.getItem("token");
     const id = document.getElementById("permiso_id").value;
     
-    // Recolectar todos los módulos que estén seleccionados
     const checkboxesModulos = document.querySelectorAll('.cb-modulo:checked');
     const modulosSeleccionados = Array.from(checkboxesModulos).map(cb => parseInt(cb.value));
 
@@ -200,7 +223,6 @@ async function guardarPermiso() {
         return;
     }
 
-    // NUEVO PAYLOAD: Enviamos 'id_modulos' como un arreglo (ej. [1, 2, 3])
     const payload = {
         id_perfil: id_perfil,
         id_modulos: modulosSeleccionados, 
@@ -241,10 +263,8 @@ function editarPermiso(p) {
     document.getElementById("permiso_id").value = p.id;
     document.getElementById("select_perfil").value = p.id_perfil;
     
-    // Primero, desmarcamos todos los módulos
     document.querySelectorAll('.cb-modulo').forEach(cb => cb.checked = false);
     
-    // Marcamos SOLO el módulo correspondiente al registro que estamos editando
     const cbModulo = document.querySelector(`.cb-modulo[value="${p.id_modulo}"]`);
     if(cbModulo) cbModulo.checked = true;
     
@@ -282,9 +302,10 @@ function limpiarFormulario() {
     document.getElementById("titulo-form").innerText = "Asignar Nuevos Permisos";
     document.getElementById("permiso_id").value = "";
     document.getElementById("select_perfil").value = "";
-    
-    // Esto desmarcará TODOS los checkboxes (módulos y acciones)
     document.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+    
+    // 🌟 NUEVO: Si limpian el formulario, también actualizamos la tabla para que se oculte
+    renderizarTabla();
 }
 
 /* ==========================================
@@ -297,13 +318,14 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    // --- NUEVO: MOSTRAR EL NOMBRE DEL USUARIooo---
     const nombreGuardado = localStorage.getItem("nombre_usuario") || "Usuario";
     const spanNombre = document.getElementById("nombre-usuario-nav");
     if (spanNombre) {
         spanNombre.innerText = nombreGuardado;
     }
-    // --------------------------------------------
+
+    // 🌟 NUEVO: Le decimos al selector que cada vez que cambie, redibuje la tabla
+    document.getElementById("select_perfil").addEventListener("change", renderizarTabla);
 
     cargarCatalogos();
     cargarMenuDinamico();
