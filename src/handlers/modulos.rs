@@ -55,7 +55,6 @@ pub async fn obtener_menu_permisos(
         println!("Error al buscar si es admin: {:?}", e);
         StatusCode::INTERNAL_SERVER_ERROR
     })?
-    .flatten() // Lo aplana por si en la base de datos es nulo
     .unwrap_or(false); // Si es nulo o no existe, asumimos que NO es admin por seguridad
 
     // PASO B: Decidir qué módulos enviarle
