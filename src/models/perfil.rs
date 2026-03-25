@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 pub struct Perfil {
     pub id: i32,
     pub str_nombre_perfil: String,
-    // pub bit_administrador: bool, // Lo dejamos comentado si tu tabla original no lo pedía aquí
+    pub bit_administrador: Option<bool>, // 👈 ¡DESCOMENTADA! Usamos Option por si hay nulos en la BD
 }
 
 // Estructura NUEVA para atrapar los datos del HTML
