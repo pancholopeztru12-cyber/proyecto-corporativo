@@ -6,6 +6,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Perfiles</title>
     <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        /* Estilos para el interruptor de Administrador */
+        .admin-toggle-card {
+            background-color: #1e2533; 
+            border-radius: 8px;
+            border: 1px solid #2d3748;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            margin-top: 15px;
+        }
+        .admin-toggle-info h4 {
+            margin: 0 0 5px 0;
+            font-size: 15px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        .admin-toggle-info p {
+            margin: 0;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #475569; 
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #3b82f6; 
+        }
+        input:focus + .slider {
+            box-shadow: 0 0 1px #3b82f6;
+        }
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+    </style>
 </head>
 <body>
 
@@ -31,9 +98,21 @@
                 <h3>Crear / Editar Perfil</h3>
                 <div class="form-group">
                     <input type="hidden" id="perfil_id"> 
-                    <input id="nuevo_nombre_perfil" placeholder="Ej. Recursos Humanos, Ventas, etc.">
+                    <input id="nuevo_nombre_perfil" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #2d3748; background-color: #1e2533; color: white;" placeholder="Ej. Recursos Humanos, Ventas, etc.">
                 </div>
                 
+                <div class="admin-toggle-card">
+                    <div class="admin-toggle-info">
+                        <h4>Perfil Administrador</h4>
+                        <p>Los perfiles administradores tienen acceso completo al sistema.</p>
+                    </div>
+                    
+                    <label class="switch">
+                        <input type="checkbox" id="esAdministrador">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
                 <button id="btn-crear" class="btn-guardar" onclick="guardarPerfil()">Guardar Perfil</button>
                 <button onclick="limpiarFormularioPerfil()" style="background: #9ca3af; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; margin-top: 10px; width: 100%;">Cancelar / Limpiar</button>
             </div>

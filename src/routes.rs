@@ -15,8 +15,9 @@ async fn home() -> &'static str {
 pub fn create_routes(pool: PgPool) -> Router {
     // Rutas que REQUIEREN Token JWT
     let protected = Router::new()
-        // PERFILES (Sin el /api/ extra, pero con el .post encadenado correctamente)
+        // PERFILES (Ahora con sus rutas de editar y eliminar)
         .route("/perfiles", get(crate::handlers::perfiles::listar).post(crate::handlers::perfiles::crear_perfil))
+        .route("/perfiles/:id", put(crate::handlers::perfiles::editar_perfil).delete(crate::handlers::perfiles::eliminar_perfil))
 
         // USUARIOS
         .route("/usuarios", get(crate::handlers::usuarios::listar).post(crate::handlers::usuarios::crear_usuario))

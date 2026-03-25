@@ -1,4 +1,4 @@
-use axum::{extract::{State, Query}, Json, http::StatusCode};
+use axum::{extract::{State, Query, Path}, Json, http::StatusCode};
 use serde::Deserialize;
 use sqlx::PgPool;
 
@@ -22,7 +22,8 @@ pub async fn listar(
         r#"
         SELECT 
             id as "id!", 
-            str_nombre_perfil as "str_nombre_perfil!" 
+            str_nombre_perfil as "str_nombre_perfil!",
+            bit_administrador as "bit_administrador!" -- ¡AGREGAMOS ESTA LÍNEA!
         FROM perfil 
         ORDER BY id ASC
         LIMIT $1 OFFSET $2
@@ -61,5 +62,53 @@ pub async fn crear_perfil(
             println!("Error al crear perfil: {:?}", e);
             Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
+        // ==========================================
+// FUNCIÓN PARA EDITAR UN PERFIL (PUT)
+// ==========================================
+pub async fn editar_perfil(
+    State(pool): State<PgPool>,
+    Path(id): Path<i32>, // Leemos el ID desde la URL
+    Json(payload): Json<CrearPerfilReq>,
+) -> Result<StatusCode, StatusCode> {
+    
+    let res = sqlx::query(
+        "UPDATE perfil SET str_nombre_perfil = $1, bit_administrador = $2 WHERE id = $3"
+    )
+    .bind(payload.str_nombre_perfil)
+    .bind(payload.bit_administrador)
+    .bind(id)
+    .execute(&pool)
+    .await;
+
+    match res {
+        Ok(_) => Ok(StatusCode::OK),
+        Err(e) => {
+            println!("Error al editar perfil: {:?}", e);
+            Err(StatusCode::INTERNAL_SERVER_ERROR)
+        }
+    }
+}
+
+// ==========================================
+// FUNCIÓN PARA ELIMINAR UN PERFIL (DELETE)
+// ==========================================
+pub async fn eliminar_perfil(
+    State(pool): State<PgPool>,
+    Path(id): Path<i32>, // Leemos el ID desde la URL
+) -> Result<StatusCode, StatusCode> {
+    
+    let res = sqlx::query("DELETE FROM perfil WHERE id = $1")
+    .bind(id)
+    .execute(&pool)
+    .await;
+
+    match res {
+        Ok(_) => Ok(StatusCode::OK),
+        Err(e) => {
+            println!("Error al eliminar perfil: {:?}", e);
+            Err(StatusCode::INTERNAL_SERVER_ERROR)
+        }
+    }
+}
     }
 }

@@ -55,13 +55,21 @@ function editarPerfil(id) {
     document.getElementById("perfil_id").value = p.id;
     document.getElementById("nuevo_nombre_perfil").value = p.str_nombre_perfil || p.nombre || "";
     
+    // Encendemos o apagamos el switch dependiendo de lo que venga de la base de datos
+    document.getElementById("esAdministrador").checked = p.bit_administrador || false; 
+    
     document.querySelector("#formulario h3").innerText = `Editar Perfil (ID: ${id})`;
     window.scrollTo(0, 0);
 }
 
+/* === LIMPIAR FORMULARIO === */
 function limpiarFormularioPerfil() {
     document.getElementById("perfil_id").value = "";
     document.getElementById("nuevo_nombre_perfil").value = "";
+    
+    // Apagamos el switch por defecto al limpiar
+    document.getElementById("esAdministrador").checked = false;
+
     document.querySelector("#formulario h3").innerText = "Crear / Editar Perfil";
 }
 
@@ -70,14 +78,18 @@ async function guardarPerfil() {
     const token = localStorage.getItem("token");
     const id = document.getElementById("perfil_id").value;
     const nombrePerfil = document.getElementById("nuevo_nombre_perfil").value;
+    const esAdmin = document.getElementById("esAdministrador").checked; // Leemos si el switch está activado
 
     if(!nombrePerfil.trim()) {
         alert("El nombre del perfil es obligatorio");
         return;
     }
 
-    // Adaptamos el body según tu backend (enviamos JSON)
-    const bodyData = { str_nombre_perfil: nombrePerfil };
+    // Adaptamos el body según tu backend y le agregamos el es_administrador
+    const bodyData = { 
+        str_nombre_perfil: nombrePerfil,
+        bit_administrador: esAdmin // ¡Ahora coinciden exactamente!
+    };
 
     const metodo = id ? "PUT" : "POST";
     const url = id ? `${API}/${id}` : API;
@@ -163,7 +175,6 @@ async function cargarMenuDinamico() {
                 menuSeguridad.forEach(nombre => {
                     let link = `${nombre.toLowerCase().replace(/\s+/g, '')}.html`;
                     
-                    // EXCEPCIONES PARA ARREGLAR EL ERROR 404
                     if (nombre.toLowerCase() === 'usuario') link = 'usuarios.html';
                     if (nombre.toLowerCase() === 'perfil') link = 'perfiles.html'; 
                     if (nombre.toLowerCase() === 'modulo' || nombre.toLowerCase() === 'módulo') link = 'modulos.html'; 
