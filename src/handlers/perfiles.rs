@@ -23,7 +23,7 @@ pub async fn listar(
         SELECT 
             id as "id!", 
             str_nombre_perfil as "str_nombre_perfil!",
-            bit_administrador as "bit_administrador!" -- ¡AGREGAMOS ESTA LÍNEA!
+            bit_administrador as "bit_administrador!" 
         FROM perfil 
         ORDER BY id ASC
         LIMIT $1 OFFSET $2
@@ -62,7 +62,10 @@ pub async fn crear_perfil(
             println!("Error al crear perfil: {:?}", e);
             Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
-        // ==========================================
+    }
+} // 👈 AQUÍ ESTABA EL ERROR: Faltaba cerrar esta llave correctamente.
+
+// ==========================================
 // FUNCIÓN PARA EDITAR UN PERFIL (PUT)
 // ==========================================
 pub async fn editar_perfil(
@@ -108,7 +111,5 @@ pub async fn eliminar_perfil(
             println!("Error al eliminar perfil: {:?}", e);
             Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
-    }
-}
     }
 }
