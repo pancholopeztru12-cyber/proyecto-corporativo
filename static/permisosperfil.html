@@ -7,16 +7,58 @@
     <title>Gestión de Permisos por Perfil</title>
     <link rel="stylesheet" href="/css/styles.css">
     <style>
-        /* Un poco de estilo extra para que los checkboxes de módulos se vean bien */
-        .modulos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 10px;
-            margin-top: 10px;
-            padding: 15px;
-            background: var(--surface);
+        /* Estilos para la tabla tipo matriz/árbol */
+        .fila-categoria {
+            background-color: #f1f5f9;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: left;
+            transition: background-color 0.2s;
+        }
+        .fila-categoria:hover { 
+            background-color: #e2e8f0; 
+        }
+        .fila-modulo {
+            border-bottom: 1px solid var(--border);
+            transition: background-color 0.2s;
+        }
+        .fila-modulo:hover {
+            background-color: #f8fafc;
+        }
+        .fila-modulo td { 
+            padding: 10px; 
+        }
+        .col-modulo-nombre {
+            text-align: left;
+            padding-left: 40px !important;
+            color: #475569;
+            position: relative;
+        }
+        .col-modulo-nombre::before {
+            content: "├─";
+            position: absolute;
+            left: 15px;
+            color: #94a3b8;
+        }
+        .chk-permiso {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #3b82f6;
+        }
+        /* Contenedor del encabezado de la matriz */
+        .header-matriz {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px;
+        }
+        .selector-perfil-caja {
+            background: var(--surface); 
+            padding: 12px 20px; 
+            border-radius: 6px; 
             border: 1px solid var(--border);
-            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
     </style>
 </head>
@@ -36,71 +78,49 @@
             <h3>Menú</h3>
             <ul id="lista-menu"></ul>
             <hr>
-            <button onclick="localStorage.clear(); location.href='/login.html'" style="width:100%">Salir</button>
+            <button onclick="localStorage.clear(); location.href='/login.html'" style="width:100%; padding: 10px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer;">Salir</button>
         </aside>
 
         <main class="content">
-            <div id="formulario">
-                <h3 id="titulo-form">Asignar Nuevos Permisos</h3>
-                <input type="hidden" id="permiso_id"> 
-                
-                <div class="form-group">
-                    <div>
-                        <label><b>1. Selecciona el Perfil:</b></label>
-                        <select id="select_perfil" style="width: 100%; max-width: 300px; margin-top: 5px;">
-                            <option value="">Seleccione Perfil</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group" style="display: block; margin-top: 20px;">
-                    <label><b>2. Selecciona los Módulos a los que aplica:</b></label>
-                    <div id="modulos_checkboxes" class="modulos-grid">
-                        </div>
-                </div>
-
-                <div class="form-group" style="display: block; margin-top: 20px;">
-                    <label><b>3. Acciones Permitidas para esos módulos:</b></label>
-                    <div class="checkbox-group" style="margin-top: 10px; padding: 15px; background: #f8fafc; border-radius: 6px; border: 1px dashed #cbd5e1;">
-                        <label><input type="checkbox" id="bit_agregar"> Agregar</label>
-                        <label><input type="checkbox" id="bit_editar"> Editar</label>
-                        <label><input type="checkbox" id="bit_eliminar"> Eliminar</label>
-                        <label><input type="checkbox" id="bit_consulta"> Consultar</label>
-                        <label><input type="checkbox" id="bit_detalle"> Detalle</label>
-                    </div>
-                </div>
-                
-                <div style="margin-top: 30px;">
-                    <button id="btn-guardar" class="btn-guardar" onclick="guardarPermiso()">Guardar Permisos</button>
-                    <button class="btn-eliminar" style="background: #64748b !important; color: white !important; border: none !important; padding: 12px 20px !important;" onclick="limpiarFormulario()">Cancelar / Limpiar</button>
+            
+            <div class="header-matriz">
+                <h3 style="margin: 0;">Gestión de Permisos</h3>
+                <div class="selector-perfil-caja">
+                    <label style="margin-right: 10px; color: #334155;"><b>Seleccionar Perfil:</b></label>
+                    <select id="select_perfil" style="min-width: 250px; padding: 8px; border-radius: 4px; border: 1px solid #cbd5e1;">
+                        <option value="">Seleccione un Perfil...</option>
+                    </select>
                 </div>
             </div>
 
-            <hr style="margin: 30px 0; border: 0; border-top: 1px solid var(--border);">
-
-            <h3>Lista de Permisos Asignados</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Perfil</th>
-                        <th>Módulo</th>
-                        <th>Add</th>
-                        <th>Edit</th>
-                        <th>Del</th>
-                        <th>Con</th>
-                        <th>Det</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaPermisos"></tbody>
-            </table>
-
-            <div class="pagination">
-                <button onclick="cambiarPagina(-1)">Anterior</button>
-                <span id="infoPagina">Página 1</span>
-                <button onclick="cambiarPagina(1)">Siguiente</button>
+            <div style="overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <table style="width: 100%; border-collapse: collapse; text-align: center;" id="tabla-matriz">
+                    <thead>
+                        <tr style="background: #1e293b; color: white;">
+                            <th style="text-align: left; padding: 15px;">Módulos y Categorías</th>
+                            <th>Agregar</th>
+                            <th>Editar</th>
+                            <th>Eliminar</th>
+                            <th>Consultar</th>
+                            <th>Detalle</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaPermisos">
+                        <tr>
+                            <td colspan="6" style="padding: 40px; text-align: center; color: #64748b; font-size: 16px;">
+                                👆 Selecciona un perfil en la parte superior para cargar su matriz de permisos.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
+
+            <div style="margin-top: 20px; text-align: right;">
+                <button id="btn-guardar" class="btn-guardar" onclick="guardarMatrizPermisos()" style="padding: 12px 25px; font-size: 16px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; display: none; font-weight: bold;">
+                    💾 Guardar Cambios del Perfil
+                </button>
+            </div>
+
         </main>
     </div>
 
