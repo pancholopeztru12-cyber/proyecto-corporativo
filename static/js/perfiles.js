@@ -85,7 +85,7 @@ async function guardarPerfil() {
         return;
     }
 
-    // Adaptamos el body según tu backend y le agregamos el es_administrador
+    // Adaptamos el body según tu backend y le agregamos el es_administradoooor
     const bodyData = { 
         str_nombre_perfil: nombrePerfil,
         bit_administrador: esAdmin // ¡Ahora coinciden exactamente!
