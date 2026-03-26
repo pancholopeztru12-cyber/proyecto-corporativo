@@ -11,10 +11,10 @@
 
     <div class="top-header">
         <div class="breadcrumb">
-    <a href="/index.html" style="color: #3b82f6; text-decoration: none;">🏠 Inicio</a> > 
-    <span style="color: #64748b;">Seguridad</span> > 
-    <b style="color: #1e293b;">Módulos</b>
-</div>
+            <a href="/index.html" style="color: #3b82f6; text-decoration: none;">🏠 Inicio</a> > 
+            <span style="color: #64748b;">Seguridad</span> > 
+            <b style="color: #1e293b;">Módulos</b>
+        </div>
         <div class="user-welcome">
             👋 Bienvenido: <span id="nombre-usuario-nav">...</span>
         </div>
@@ -37,15 +37,28 @@
                 </button>
             </div>
 
+            <div id="form-edicion" style="display: none; background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h3 style="margin-top: 0; color: #1e293b; border-left: 4px solid #f59e0b; padding-left: 10px;">Editar Módulo</h3>
+                <input type="hidden" id="edit-id">
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <input type="text" id="edit-nombre" placeholder="Nombre del Módulo" style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                    <input type="text" id="edit-ruta" placeholder="Ruta (ej. /modulo.html)" style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                </div>
+                <button onclick="guardarEdicionModulo()" style="background: #f59e0b; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">Guardar Cambios</button>
+                <button onclick="cerrarEdicion()" style="background: #94a3b8; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-left: 10px;">Cancelar</button>
+            </div>
+
             <table>
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Nombre del Módulo</th>
-                        <th>Ruta</th> </tr>
+                        <th>Ruta</th> 
+                        <th>Acciones</th> 
+                    </tr>
                 </thead>
                 <tbody id="tablaModulos">
-                    </tbody>
+                </tbody>
             </table>
         </main>
     </div>

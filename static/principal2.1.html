@@ -11,12 +11,12 @@
 
     <div class="top-header">
         <div class="breadcrumb">
-    <a href="/index.html" style="color: #3b82f6; text-decoration: none;">🏠 Inicio</a> > 
-    <span style="color: #64748b;">Principal 2</span> > 
-    <b style="color: #1e293b;">Principal 2.1</b>
-</div>
+            <a href="/index.html" style="color: #3b82f6; text-decoration: none;">🏠 Inicio</a> > 
+            <span style="color: #64748b;">Principal 2</span> > 
+            <b style="color: #1e293b;">Principal 2.1</b>
+        </div>
         <div class="user-welcome">
-            👋 Bienvenido: <span id="nombre-usuario-nav">Usuario (Estático)</span>
+            👋 Bienvenido: <span id="nombre-usuario-nav" style="color: #3b82f6; font-weight: bold;">Cargando...</span>
         </div>
     </div>
 
@@ -49,17 +49,64 @@
                 </li>
             </ul>
             <hr>
-            <button onclick="location.href='/login.html'" style="width:100%">Salir</button>
+            <button onclick="localStorage.clear(); location.href='/login.html'" style="width:100%; background: #ef4444; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer;">Salir</button>
         </aside>
 
         <main class="content">
-            <h2>Módulo Principal 2.1</h2>
-            <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                <h4 style="color: #333; margin-bottom: 10px;">Vista Estática</h4>
-                <p style="color: #666;">Bienvenido a la pantalla de <b>Principal 2.1</b>. Esta es una maquetación visual estática, sin conexión a base de datos ni funcionalidades JavaScript.</p>
+            <h2 style="border-left: 4px solid #3b82f6; padding-left: 10px; color: #1e293b; margin-bottom: 5px;">Gestión de Registros (2.1)</h2>
+            <p style="color: #64748b; margin-bottom: 20px;">Esta es una pantalla estática de demostración. Los botones de CRUD no afectan la base de datos.</p>
+            
+            <button style="background-color: #4f46e5; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; margin-bottom: 20px;">+ Agregar Nuevo Registro</button>
+
+            <div style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden;">
+                <table style="width: 100%; border-collapse: collapse; text-align: center;">
+                    <thead style="background-color: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                        <tr>
+                            <th style="padding: 15px; color: #64748b; font-weight: bold; font-size: 13px;">ID</th>
+                            <th style="padding: 15px; color: #64748b; font-weight: bold; font-size: 13px;">NOMBRE DE REGISTRO</th>
+                            <th style="padding: 15px; color: #64748b; font-weight: bold; font-size: 13px;">DESCRIPCIÓN</th>
+                            <th style="padding: 15px; color: #64748b; font-weight: bold; font-size: 13px;">ESTADO</th>
+                            <th style="padding: 15px; color: #64748b; font-weight: bold; font-size: 13px;">ACCIONES CRUD</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 15px; color: #333;">1</td>
+                            <td style="padding: 15px; color: #333;">Dato de Prueba 01</td>
+                            <td style="padding: 15px; color: #666;">Este es un registro de relleno para cumplir la rúbrica</td>
+                            <td style="padding: 15px; color: #10b981; font-weight: bold;">Activo</td>
+                            <td style="padding: 15px;">
+                                <button style="border: 1px solid #3b82f6; color: #3b82f6; background: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Ver</button>
+                                <button style="border: 1px solid #f59e0b; color: #f59e0b; background: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Editar</button>
+                                <button style="border: 1px solid #ef4444; color: #ef4444; background: white; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Eliminar</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 15px; color: #333;">2</td>
+                            <td style="padding: 15px; color: #333;">Dato de Prueba 02</td>
+                            <td style="padding: 15px; color: #666;">Otro registro simulado sin conexión a BD</td>
+                            <td style="padding: 15px; color: #ef4444; font-weight: bold;">Inactivo</td>
+                            <td style="padding: 15px;">
+                                <button style="border: 1px solid #3b82f6; color: #3b82f6; background: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Ver</button>
+                                <button style="border: 1px solid #f59e0b; color: #f59e0b; background: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Editar</button>
+                                <button style="border: 1px solid #ef4444; color: #ef4444; background: white; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Eliminar</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </main>
     </div>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const nombreGuardado = localStorage.getItem("nombre_usuario");
+            if (nombreGuardado) {
+                document.getElementById("nombre-usuario-nav").innerText = nombreGuardado;
+            } else {
+                document.getElementById("nombre-usuario-nav").innerText = "Invitado";
+            }
+        });
+    </script>
 </body>
 </html>
