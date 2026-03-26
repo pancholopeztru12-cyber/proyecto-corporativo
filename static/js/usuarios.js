@@ -1,6 +1,6 @@
 const API = "/api";
 let paginaActual = 1;
-let listaUsuariosData = []; // Guardaremos temporalmente los usuarios aquí para poder editarlos
+let listaUsuariosData = []; 
 
 /* ==========================================
    FUNCIÓN GLOBAL PARA MANEJAR ERRORES
@@ -14,6 +14,19 @@ function manejarErroresFetch(response) {
         return true; 
     }
     return false; 
+}
+
+/* ==========================================
+   LÓGICA DEL MODAL (Ventana Emergente)
+   ========================================== */
+function abrirModalUsuario() {
+    limpiarFormularioUsuario();
+    document.getElementById("modal-titulo").innerText = "Crear Nuevo Usuario";
+    document.getElementById("modal-usuario").style.display = "block";
+}
+
+function cerrarModalUsuario() {
+    document.getElementById("modal-usuario").style.display = "none";
 }
 
 /* ==========================================
@@ -31,7 +44,7 @@ async function cargarUsuarios(pagina = 1) {
         if (manejarErroresFetch(response)) return;
 
         const usuarios = await response.json();
-        listaUsuariosData = usuarios; // Guardamos la lista en memoria
+        listaUsuariosData = usuarios; 
         const tabla = document.getElementById("tablaUsuarios");
         tabla.innerHTML = "";
 
@@ -49,15 +62,15 @@ async function cargarUsuarios(pagina = 1) {
             
             tabla.innerHTML += `
             <tr>
-                <td><img src="${fotoUrl}" class="user-img" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;"></td>
-                <td>${nombreMostrar}</td>
-                <td><span style="background: #e0e7ff; color: #4338ca; padding: 4px 8px; border-radius: 12px; font-size: 0.85rem; font-weight: bold;">${perfilMostrar}</span></td>
+                <td><img src="${fotoUrl}" class="user-img" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #334155;"></td>
+                <td><strong>${nombreMostrar}</strong></td>
+                <td><span style="background: #e0e7ff; color: #4338ca; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: bold;">${perfilMostrar}</span></td>
                 <td>${emailMostrar}</td>
                 <td>${celularMostrar}</td>
-                <td style="color: ${estadoColor}; font-weight: 600;">${estadoTexto}</td>
+                <td><span style="color: ${estadoColor}; font-weight: 600; background: ${esActivo ? '#ecfdf5' : '#fef2f2'}; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem;">${estadoTexto}</span></td>
                 <td>
-                    <button class="btn-editar" onclick="editarUsuario(${u.id})" style="color:orange; border: 1px solid orange; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer;">Editar</button>
-                    <button class="btn-eliminar" onclick="eliminarUsuario(${u.id})" style="color:red; border: 1px solid red; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer; margin-left: 5px;">Eliminar</button>
+                    <button class="btn-editar" onclick="editarUsuario(${u.id})" style="color:orange; border: 1px solid orange; padding: 4px 8px; border-radius: 4px; background: transparent; cursor: pointer;">Editar</button>
+                    <button class="btn-eliminar" onclick="eliminarUsuario(${u.id})" style="color:red; border: 1px solid red; padding: 4px 8px; border-radius: 4px; background: transparent; cursor: pointer; margin-left: 5px;">Eliminar</button>
                 </td>
             </tr>`;
         });
@@ -70,17 +83,15 @@ async function cargarUsuarios(pagina = 1) {
 }
 
 /* ==========================================
-   EDITAR USUARIO (Cargar datos al formulario)
+   EDITAR USUARIO (Cargar datos al modal)
    ========================================== */
 function editarUsuario(id) {
-    // Buscamos el usuario en nuestra lista de memoria
     const u = listaUsuariosData.find(user => user.id === id);
     if (!u) return;
 
-    // Llenamos el formulario
     document.getElementById("usuario_id").value = u.id;
     document.getElementById("nuevo_usuario").value = u.nombre || u.str_nombre_usuario || "";
-    document.getElementById("nuevo_password").value = ""; // Se deja en blanco por seguridad
+    document.getElementById("nuevo_password").value = ""; 
     document.getElementById("nuevo_perfil").value = u.id_perfil || "";
     document.getElementById("nuevo_correo").value = u.email || u.str_correo || "";
     document.getElementById("nuevo_celular").value = u.celular || u.str_numero_celular || "";
@@ -88,8 +99,8 @@ function editarUsuario(id) {
     const esActivo = u.id_estado_usuario === true || u.id_estado_usuario === "true" || u.id_estado_usuario === 1;
     document.getElementById("nuevo_estado").value = esActivo ? "true" : "false";
 
-    document.querySelector("#formulario h3").innerText = `Editar Usuario (ID: ${id})`;
-    window.scrollTo(0, 0); // Subir la pantalla
+    document.getElementById("modal-titulo").innerText = `Editar Usuario (ID: ${id})`;
+    document.getElementById("modal-usuario").style.display = "block"; // Abre el modal
 }
 
 function limpiarFormularioUsuario() {
@@ -101,7 +112,6 @@ function limpiarFormularioUsuario() {
     document.getElementById("nuevo_celular").value = "";
     document.getElementById("nuevo_estado").value = "true";
     document.getElementById("imagen_usuario").value = "";
-    document.querySelector("#formulario h3").innerText = "Crear / Editar Usuario";
 }
 
 /* ==========================================
@@ -109,12 +119,11 @@ function limpiarFormularioUsuario() {
    ========================================== */
 async function guardarUsuario() {
     const token = localStorage.getItem("token");
-    const id = document.getElementById("usuario_id").value; // Si hay ID, es edición
+    const id = document.getElementById("usuario_id").value; 
     
     const formData = new FormData();
     formData.append("str_nombre_usuario", document.getElementById("nuevo_usuario").value);
     
-    // Solo enviar el password si el usuario escribió algo (para no sobreescribirlo en blanco)
     const password = document.getElementById("nuevo_password").value;
     if (password) {
         formData.append("str_pwd", password);
@@ -131,7 +140,7 @@ async function guardarUsuario() {
     }
 
     if(!formData.get("str_nombre_usuario") || !formData.get("id_perfil")) {
-        alert("Nombre y Perfil son obligatorios");
+        alert("El nombre de usuario y el perfil son obligatorios");
         return;
     }
 
@@ -151,7 +160,7 @@ async function guardarUsuario() {
 
         if (response.ok) {
             alert(id ? "Usuario actualizado con éxito" : "Usuario guardado con éxito");
-            limpiarFormularioUsuario();
+            cerrarModalUsuario(); // Cerramos el modal
             cargarUsuarios(paginaActual);
         } else {
             alert("Error al guardar usuario. Verifique los datos.");
@@ -186,7 +195,7 @@ async function cargarPerfiles() {
 }
 
 /* ==========================================
-   MENÚ DINÁMICO Y PERMISOS DE BOTONES
+   MENÚ DINÁMICO
    ========================================== */
 async function cargarMenuDinamico() {
     const token = localStorage.getItem("token");
@@ -235,12 +244,9 @@ async function cargarMenuDinamico() {
                 htmlMenu += `<li><strong style="color:#333;">Seguridad</strong><ul style="list-style:circle; padding-left:20px; margin-top:5px;">`;
                 menuSeguridad.forEach(nombre => {
                     let link = `${nombre.toLowerCase().replace(/\s+/g, '')}.html`;
-                    
-                    // EXCEPCIONES PARA ARREGLAR EL ERROR 404
                     if (nombre.toLowerCase() === 'usuario') link = 'usuarios.html';
                     if (nombre.toLowerCase() === 'perfil') link = 'perfiles.html'; 
                     if (nombre.toLowerCase() === 'modulo' || nombre.toLowerCase() === 'módulo') link = 'modulos.html'; 
-                    
                     htmlMenu += `<li><a style="color: #cbd5e1; text-decoration: none;" href="/${link}">${nombre}</a></li>`;
                 });
                 htmlMenu += `</ul></li>`;
@@ -266,14 +272,16 @@ async function cargarMenuDinamico() {
 
             lista.innerHTML = htmlMenu;
 
-            // Resto de la lógica de permisos de botones (ocultar botón crear/eliminar si no tiene permiso)
+            // Permisos de botones
             if (moduloActual) {
                 const noPuedeAgregar = (moduloActual.agregar === false || moduloActual.agregar === 0 || moduloActual.bit_agregar === false || moduloActual.bit_agregar === 0);
                 const noPuedeEliminar = (moduloActual.eliminar === false || moduloActual.eliminar === 0 || moduloActual.bit_eliminar === false || moduloActual.bit_eliminar === 0);
 
                 const btnCrear = document.getElementById("btn-crear");
-                if (btnCrear) {
-                    btnCrear.style.display = noPuedeAgregar ? "none" : "block";
+                // Si no puede agregar, ocultamos el botón que abre el modal
+                if (btnCrear && noPuedeAgregar) {
+                    const btnAbrirModal = document.querySelector("button[onclick='abrirModalUsuario()']");
+                    if(btnAbrirModal) btnAbrirModal.style.display = "none";
                 }
 
                 if (noPuedeEliminar) {
@@ -287,7 +295,7 @@ async function cargarMenuDinamico() {
 }
 
 /* ==========================================
-   ELIMINAR USUARioooo
+   ELIMINAR USUARIO
    ========================================== */
 async function eliminarUsuario(id) {
     if(confirm("¿Seguro que deseas desactivar este usuario?")) {
@@ -317,6 +325,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const spanNombre = document.getElementById("nombre-usuario-nav");
     if (spanNombre) {
         spanNombre.innerText = nombreGuardado;
+    }
+
+    // Cerrar el modal si hacen clic en el fondo borroso
+    window.onclick = function(event) {
+        const modal = document.getElementById('modal-usuario');
+        if (event.target === modal) cerrarModalUsuario();
     }
 
     cargarPerfiles();

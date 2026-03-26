@@ -2,11 +2,46 @@
 <html lang="es">
 <head>
     <script src="/js/seguridad.js"></script>
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Usuarios</title>
     <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        /* Estilos de la Ventana Emergente (Modal) */
+        #modal-usuario {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.6);
+            backdrop-filter: blur(3px); /* Fondo borroso elegante */
+            overflow-y: auto; /* Por si la pantalla es pequeña y el formulario es largo */
+        }
+        .modal-content {
+            background-color: #1e293b; 
+            color: white; 
+            margin: 5% auto; 
+            padding: 25px; 
+            border-radius: 8px; 
+            width: 450px; 
+            border: 1px solid #334155; 
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);
+        }
+        .modal-content input, .modal-content select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: 1px solid #475569;
+            background-color: #0f172a;
+            color: white;
+            box-sizing: border-box;
+        }
+    </style>
 </head>
 <body>
 
@@ -22,47 +57,20 @@
     <div class="container">
         <aside id="menu-lateral">
             <h3>Menú</h3>
-            
-            <ul style="list-style: none; padding-left: 0; margin-bottom: 10px;">
-                <li style="padding: 10px 0;">
-                    <a href="/nuevo_perfil.html" style="color: inherit; text-decoration: none; font-weight: bold; display: flex; align-items: center; gap: 8px;">
-                        <span>+</span> Nuevo Perfil
-                    </a>
-                </li>
-            </ul>
             <ul id="lista-menu"></ul>
             <hr>
-            <button onclick="localStorage.clear(); location.href='/login.html'" style="width:100%">Salir</button>
+            <button onclick="localStorage.clear(); location.href='/login.html'" style="width:100%; background: #ef4444; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer;">Salir</button>
         </aside>
 
         <main class="content">
-            <div id="formulario">
-                <h3>Crear / Editar Usuario</h3>
-                <div class="form-group">
-                    <input type="hidden" id="usuario_id"> 
-                    
-                    <input id="nuevo_usuario" placeholder="Nombre de Usuario">
-                    <input id="nuevo_password" type="password" placeholder="Password (Dejar en blanco si no se cambia)">
-                    <select id="nuevo_perfil"><option value="">Seleccione Perfil</option></select>
-                    <input id="nuevo_correo" type="email" placeholder="Correo Electrónico">
-                    <input id="nuevo_celular" placeholder="Número de Celular">
-                    
-                    <select id="nuevo_estado">
-                        <option value="true">Activo</option>
-                        <option value="false">Inactivo</option>
-                    </select>
-                    
-                    <div>
-                        <label style="font-size: 0.8rem; color: var(--text-light);">Subir Fotografía:</label>
-                        <input type="file" id="imagen_usuario" accept="image/*"> 
-                    </div>
-                </div>
-                
-                <button id="btn-crear" class="btn-guardar" onclick="guardarUsuario()">Guardar Usuario</button>
-                <button onclick="limpiarFormularioUsuario()" style="background: #9ca3af; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; margin-top: 10px; width: 100%;">Cancelar / Limpiar</button>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #334155;">
+                <h3 style="margin: 0; font-size: 20px;">Lista de Usuarios</h3>
+                <button onclick="abrirModalUsuario()" style="background: #3b82f6; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                    + Nuevo Usuario
+                </button>
             </div>
 
-            <h3>Lista de Usuarios</h3>
             <table>
                 <thead>
                     <tr>
@@ -84,6 +92,47 @@
                 <button onclick="cambiarPagina(1)">Siguiente</button>
             </div>
         </main>
+    </div>
+
+    <div id="modal-usuario">
+        <div class="modal-content">
+            <h3 id="modal-titulo" style="margin-top: 0; border-bottom: 1px solid #334155; padding-bottom: 10px;">Crear Nuevo Usuario</h3>
+            
+            <div class="form-group" style="margin-top: 15px;">
+                <input type="hidden" id="usuario_id"> 
+                
+                <label style="font-size: 14px; color: #cbd5e1;">Nombre de Usuario:</label>
+                <input id="nuevo_usuario" placeholder="Ej. Juan Pérez">
+                
+                <label style="font-size: 14px; color: #cbd5e1;">Contraseña:</label>
+                <input id="nuevo_password" type="password" placeholder="Dejar en blanco si no se cambia">
+                
+                <label style="font-size: 14px; color: #cbd5e1;">Perfil:</label>
+                <select id="nuevo_perfil"><option value="">Seleccione Perfil</option></select>
+                
+                <label style="font-size: 14px; color: #cbd5e1;">Correo Electrónico:</label>
+                <input id="nuevo_correo" type="email" placeholder="ejemplo@correo.com">
+                
+                <label style="font-size: 14px; color: #cbd5e1;">Número de Celular:</label>
+                <input id="nuevo_celular" placeholder="Ej. 555-1234">
+                
+                <label style="font-size: 14px; color: #cbd5e1;">Estado:</label>
+                <select id="nuevo_estado">
+                    <option value="true">Activo</option>
+                    <option value="false">Inactivo</option>
+                </select>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="font-size: 14px; color: #cbd5e1; display: block; margin-bottom: 5px;">Subir Fotografía:</label>
+                    <input type="file" id="imagen_usuario" accept="image/*" style="border: none; padding: 0; background: none;"> 
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <button onclick="cerrarModalUsuario()" style="flex: 1; padding: 10px; background: #64748b; color: white; border: none; border-radius: 6px; cursor: pointer;">Cancelar</button>
+                <button id="btn-crear" onclick="guardarUsuario()" style="flex: 1; padding: 10px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">💾 Guardar</button>
+            </div>
+        </div>
     </div>
 
     <script src="/js/usuarios.js"></script>
