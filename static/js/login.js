@@ -51,7 +51,8 @@ async function login() {
             localStorage.setItem("nombre_usuario", data.nombre);
             
             alert("Bienvenido al sistema");
-            window.location.href = "/usuarios.html";
+            // ESTA ES LA LÍNEA QUE CAMBIAMOS 👇
+            window.location.href = "/index.html";
         } else {
             alert(data.message || "Credenciales inválidas o usuario inactivo");
             // 3. Reiniciamos el widget si hubo un error en el login

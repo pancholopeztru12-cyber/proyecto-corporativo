@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <script src="/js/seguridad.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio - Panel de Control</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .welcome-card {
+            background-color: #ffffff; 
+            border-radius: 8px;
+            padding: 40px 20px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        .quick-links {
+            display: flex; 
+            gap: 20px; 
+            justify-content: center; 
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .card-link {
+            background: #f8fafc; 
+            padding: 20px; 
+            border-radius: 8px; 
+            width: 200px; 
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+        .card-link:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-header">
+        <div class="breadcrumb"><b style="color: #1e293b;">🏠 Inicio</b></div>
+        <div class="user-welcome">
+            👋 Bienvenido: <span id="nombre-usuario-nav">...</span>
+        </div>
+    </div>
+    
+    <h2>Panel de Inicio</h2>
+
+    <div class="container">
+        <aside id="menu-lateral">
+            <h3>Menú</h3>
+            <ul id="lista-menu"></ul>
+            <hr>
+            <button onclick="localStorage.clear(); location.href='/login.html'" style="width:100%; background: #ef4444; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer;">Salir</button>
+        </aside>
+
+        <main class="content">
+            <div class="welcome-card">
+                <h1 style="font-size: 2.2rem; color: #1e293b; margin-bottom: 10px;">¡Hola, <span id="nombre-usuario-main" style="color: #3b82f6;">Usuario</span>!</h1>
+                <p style="color: #64748b; font-size: 1.1rem; max-width: 600px; margin: 0 auto;">
+                    Bienvenido a tu panel de control corporativo. Utiliza el menú lateral para navegar o accede rápidamente a los módulos principales desde aquí.
+                </p>
+                
+                <div class="quick-links">
+                    <a href="/usuarios.html" class="card-link" style="border-top: 4px solid #3b82f6;">
+                        <h3 style="margin:0; color:#1e293b;">👥 Usuarios</h3>
+                        <p style="font-size: 14px; color: #64748b; margin-top:8px;">Gestionar cuentas</p>
+                    </a>
+                    
+                    <a href="/perfiles.html" class="card-link" style="border-top: 4px solid #10b981;">
+                        <h3 style="margin:0; color:#1e293b;">🛡️ Perfiles</h3>
+                        <p style="font-size: 14px; color: #64748b; margin-top:8px;">Roles y accesos</p>
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/index.js"></script>
+</body>
+</html>
