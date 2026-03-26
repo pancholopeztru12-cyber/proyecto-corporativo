@@ -1,6 +1,6 @@
 const API = "/api/perfiles";
 const API_BASE = "/api";
-let listaPerfilesData = []; // Guardamos los perfiles en memoria para editarlos
+let listaPerfilesData = []; 
 
 /* === FUNCIÓN GLOBAL DE ERRORES === */
 function manejarErroresFetch(response) {
@@ -12,6 +12,24 @@ function manejarErroresFetch(response) {
         return true;
     }
     return false;
+}
+
+/* === LÓGICA DE LA VENTANA EMERGENTE (MODAL) === */
+function abrirModalPerfil() {
+    limpiarFormularioPerfil(); // Limpiamos los campos antes de abrir
+    document.getElementById("modal-titulo").innerText = "Crear Nuevo Perfil";
+    document.getElementById("modal-perfil").style.display = "block";
+}
+
+function cerrarModalPerfil() {
+    document.getElementById("modal-perfil").style.display = "none";
+}
+
+/* === LIMPIAR FORMULARIO === */
+function limpiarFormularioPerfil() {
+    document.getElementById("perfil_id").value = "";
+    document.getElementById("nuevo_nombre_perfil").value = "";
+    document.getElementById("esAdministrador").checked = false;
 }
 
 /* === CARGAR PERFILES === */
@@ -26,15 +44,21 @@ async function cargarPerfiles() {
 
         if (response.ok) {
             const data = await response.json();
-            listaPerfilesData = data; // Guardamos en memoria
+            listaPerfilesData = data; 
             const tabla = document.getElementById("tablaPerfiles");
             
             tabla.innerHTML = data.map(p => {
                 const nombrePerfil = p.str_nombre_perfil || p.nombre || "Sin nombre";
+                // Etiqueta visual si es administrador
+                const badgeAdmin = p.bit_administrador ? `<span style="background: #fee2e2; color: #dc2626; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin-left: 8px; font-weight: bold;">ADMIN</span>` : '';
+
                 return `
                 <tr>
                     <td><strong>${p.id}</strong></td>
-                    <td><span style="background: #e0e7ff; color: #4338ca; padding: 4px 12px; border-radius: 12px; font-weight: bold;">${nombrePerfil}</span></td>
+                    <td>
+                        <span style="background: #e0e7ff; color: #4338ca; padding: 4px 12px; border-radius: 12px; font-weight: bold;">${nombrePerfil}</span>
+                        ${badgeAdmin}
+                    </td>
                     <td>
                         <button class="btn-editar" onclick="editarPerfil(${p.id})" style="color:orange; border: 1px solid orange; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer;">Editar</button>
                         <button class="btn-eliminar" onclick="eliminarPerfil(${p.id})" style="color:red; border: 1px solid red; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer; margin-left: 5px;">Eliminar</button>
@@ -47,30 +71,17 @@ async function cargarPerfiles() {
     }
 }
 
-/* === EDITAR PERFIL (Llenar formulario) === */
+/* === EDITAR PERFIL (Llenar formulario y abrir modal) === */
 function editarPerfil(id) {
     const p = listaPerfilesData.find(perfil => perfil.id === id);
     if (!p) return;
 
     document.getElementById("perfil_id").value = p.id;
     document.getElementById("nuevo_nombre_perfil").value = p.str_nombre_perfil || p.nombre || "";
-    
-    // Encendemos o apagamos el switch dependiendo de lo que venga de la base de datos
     document.getElementById("esAdministrador").checked = p.bit_administrador || false; 
     
-    document.querySelector("#formulario h3").innerText = `Editar Perfil (ID: ${id})`;
-    window.scrollTo(0, 0);
-}
-
-/* === LIMPIAR FORMULARIO === */
-function limpiarFormularioPerfil() {
-    document.getElementById("perfil_id").value = "";
-    document.getElementById("nuevo_nombre_perfil").value = "";
-    
-    // Apagamos el switch por defecto al limpiar
-    document.getElementById("esAdministrador").checked = false;
-
-    document.querySelector("#formulario h3").innerText = "Crear / Editar Perfil";
+    document.getElementById("modal-titulo").innerText = `Editar Perfil (ID: ${id})`;
+    document.getElementById("modal-perfil").style.display = "block"; // Abrimos el modal
 }
 
 /* === GUARDAR (CREAR O ACTUALIZAR) PERFIL === */
@@ -78,17 +89,16 @@ async function guardarPerfil() {
     const token = localStorage.getItem("token");
     const id = document.getElementById("perfil_id").value;
     const nombrePerfil = document.getElementById("nuevo_nombre_perfil").value;
-    const esAdmin = document.getElementById("esAdministrador").checked; // Leemos si el switch está activado
+    const esAdmin = document.getElementById("esAdministrador").checked; 
 
     if(!nombrePerfil.trim()) {
         alert("El nombre del perfil es obligatorio");
         return;
     }
 
-    // Adaptamos el body según tu backend y le agregamos el es_administradoooor
     const bodyData = { 
         str_nombre_perfil: nombrePerfil,
-        bit_administrador: esAdmin // ¡Ahora coinciden exactamente!
+        bit_administrador: esAdmin
     };
 
     const metodo = id ? "PUT" : "POST";
@@ -107,9 +117,10 @@ async function guardarPerfil() {
         if (manejarErroresFetch(response)) return;
 
         if (response.ok) {
-            alert(id ? "Perfil actualizado con éxito" : "Perfil creado con éxito");
-            limpiarFormularioPerfil();
+            // Cerramos el modal en lugar de solo limpiar
+            cerrarModalPerfil();
             cargarPerfiles();
+            alert(id ? "Perfil actualizado con éxito" : "Perfil creado con éxito");
         } else {
             alert("Error al guardar perfil.");
         }
@@ -174,11 +185,9 @@ async function cargarMenuDinamico() {
                 htmlMenu += `<li><strong style="color:#333;">Seguridad</strong><ul style="list-style:circle; padding-left:20px; margin-top:5px;">`;
                 menuSeguridad.forEach(nombre => {
                     let link = `${nombre.toLowerCase().replace(/\s+/g, '')}.html`;
-                    
                     if (nombre.toLowerCase() === 'usuario') link = 'usuarios.html';
                     if (nombre.toLowerCase() === 'perfil') link = 'perfiles.html'; 
                     if (nombre.toLowerCase() === 'modulo' || nombre.toLowerCase() === 'módulo') link = 'modulos.html'; 
-                    
                     htmlMenu += `<li><a style="color: #cbd5e1; text-decoration: none;" href="/${link}">${nombre}</a></li>`;
                 });
                 htmlMenu += `</ul></li>`;
@@ -209,6 +218,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const nombreGuardado = localStorage.getItem("nombre_usuario") || "Usuario";
     const spanNombre = document.getElementById("nombre-usuario-nav");
     if (spanNombre) spanNombre.innerText = nombreGuardado;
+
+    // Cerrar modal si hacen clic fuera de la cajita negra
+    window.onclick = function(event) {
+        const modal = document.getElementById('modal-perfil');
+        if (event.target === modal) cerrarModalPerfil();
+    }
 
     cargarPerfiles();
     cargarMenuDinamico();
