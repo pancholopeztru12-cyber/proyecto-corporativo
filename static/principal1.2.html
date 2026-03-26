@@ -4,280 +4,98 @@
     <script src="/js/seguridad.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Módulo Principal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        /* ==========================================
-           ESTILOS GENERALES Y LAYOUT
-           ========================================== */
-        body { 
-            font-family: 'Inter', sans-serif; 
-            margin: 0; 
-            background-color: #f8fafc; /* Fondo gris muy claro */
-            color: #1e293b;
-            padding: 20px;
-        }
-        
-        .breadcrumb { color: #64748b; margin-bottom: 20px; font-size: 0.9rem; }
-        .page-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; color: #0f172a; }
-
-        .layout-container { 
-            display: flex; 
-            gap: 20px; 
-            align-items: flex-start;
-        }
-
-        /* ==========================================
-           SIDEBAR (MENÚ LATERAL OSCURO)
-           ========================================== */
-        .sidebar { 
-            width: 240px; 
-            background: #0f172a; /* Azul noche oscuro */
-            color: white; 
-            border-radius: 12px; 
-            padding: 20px; 
-            min-height: calc(100vh - 120px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .sidebar h3 {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #94a3b8;
-            border-left: 3px solid #3b82f6;
-            padding-left: 10px;
-            margin-top: 0;
-            margin-bottom: 20px;
-        }
-
-        #lista-menu { list-style: none; padding: 0; margin: 0; }
-        #lista-menu li { margin-bottom: 5px; }
-        #lista-menu a { 
-            color: #e2e8f0; 
-            text-decoration: none; 
-            display: block; 
-            padding: 10px 12px;
-            border-radius: 6px;
-            font-size: 0.95rem;
-            transition: background 0.2s, color 0.2s;
-        }
-        #lista-menu a:hover { 
-            background: #1e293b; 
-            color: #fff; 
-        }
-
-        .btn-salir {
-            width: 100%;
-            margin-top: 30px;
-            padding: 10px;
-            background: rgba(225, 29, 72, 0.1);
-            color: #fda4af;
-            border: 1px solid rgba(225, 29, 72, 0.3);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-salir:hover {
-            background: rgba(225, 29, 72, 0.2);
-            color: #fff;
-        }
-
-        /* ==========================================
-           CONTENIDO PRINCIPAL Y TARJETA
-           ========================================== */
-        .content { 
-            flex: 1; 
-            background: white; 
-            padding: 30px; 
-            border-radius: 12px; 
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-        }
-
-        .section-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #0f172a;
-            border-left: 4px solid #3b82f6; /* Barra azul decorativa */
-            padding-left: 12px;
-            margin-bottom: 20px;
-            margin-top: 0;
-        }
-
-        .btn-primary { 
-            background-color: #3b82f6; 
-            color: white; 
-            border: none; 
-            padding: 10px 20px; 
-            border-radius: 6px; 
-            font-weight: 500;
-            cursor: pointer; 
-            margin-bottom: 20px;
-            transition: background 0.2s;
-        }
-        .btn-primary:hover { background-color: #2563eb; }
-
-        /* ==========================================
-           TABLAS Y BOTONES DE ACCIÓN
-           ========================================== */
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 10px; 
-        }
-        
-        th, td { 
-            padding: 14px 12px; 
-            text-align: center; 
-            border-bottom: 1px solid #e2e8f0; 
-            font-size: 0.9rem;
-        }
-
-        th { 
-            background-color: #f8fafc; 
-            color: #475569; 
-            font-weight: 600; 
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            letter-spacing: 0.5px;
-        }
-
-        tbody tr:hover { background-color: #f8fafc; }
-
-        /* Botones estilo "Outline" como en la imagen */
-        .action-btn {
-            background: transparent;
-            padding: 4px 10px;
-            margin: 0 2px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .btn-view { border: 1px solid #3b82f6; color: #3b82f6; }
-        .btn-view:hover { background: #3b82f6; color: white; }
-
-        .btn-edit { border: 1px solid #f59e0b; color: #f59e0b; }
-        .btn-edit:hover { background: #f59e0b; color: white; }
-
-        .btn-delete { border: 1px solid #ef4444; color: #ef4444; }
-        .btn-delete:hover { background: #ef4444; color: white; }
-
-    </style>
+    <title>Principal 1.2</title>
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
 
-    <div class="breadcrumb">
-    <a href="/index.html" style="color: #3b82f6; text-decoration: none;">🏠 Inicio</a> > 
-    <span style="color: #64748b;">Principal 1</span> > 
-    <b style="color: #1e293b;">Principal 1.2</b>
-</div>
+    <div class="top-header">
+        <div class="breadcrumb">
+            <a href="/index.html" style="color: #3b82f6; text-decoration: none;">🏠 Inicio</a> > 
+            <span style="color: #64748b;">Principal 1</span> > 
+            <b style="color: #1e293b;">Principal 1.2</b>
+        </div>
+        <div class="user-welcome">
+            👋 Bienvenido: <span id="nombre-usuario-nav" style="color: #3b82f6; font-weight: bold;">Cargando...</span>
+        </div>
+    </div>
 
-    <div class="layout-container">
-        
-        <aside class="sidebar">
+    <div class="container">
+        <aside id="menu-lateral">
             <h3>Menú</h3>
             <ul id="lista-menu">
-                <li><a href="#">Cargando menú...</a></li>
+                <li>
+                    <strong style="color:#333;">Seguridad</strong>
+                    <ul style="list-style:circle; padding-left:20px; margin-top:5px;">
+                        <li><a style="color: #cbd5e1; text-decoration: none;" href="/usuarios.html">Usuarios</a></li>
+                        <li><a style="color: #cbd5e1; text-decoration: none;" href="/perfiles.html">Perfiles</a></li>
+                        <li><a style="color: #cbd5e1; text-decoration: none;" href="/modulos.html">Módulos</a></li>
+                        <li><a style="color: #cbd5e1; text-decoration: none;" href="/permisosperfil.html">Permisos Perfil</a></li>
+                    </ul>
+                </li>
+                <li style="margin-top:15px;">
+                    <strong style="color:#333;">Principal 1</strong>
+                    <ul style="list-style:circle; padding-left:20px; margin-top:5px;">
+                        <li><a style="color: #cbd5e1; text-decoration: none;" href="/principal1.1.html">Principal 1.1</a></li>
+                        <li><a style="color: #4f46e5; font-weight: bold; text-decoration: none;" href="/principal1.2.html">Principal 1.2</a></li>
+                    </ul>
+                </li>
+                <li style="margin-top:15px;">
+                    <strong style="color:#333;">Principal 2</strong>
+                    <ul style="list-style:circle; padding-left:20px; margin-top:5px;">
+                        <li><a style="color: #cbd5e1; text-decoration: none;" href="/principal2.1.html">Principal 2.1</a></li>
+                        <li><a style="color: #cbd5e1; text-decoration: none;" href="/principal2.2.html">Principal 2.2</a></li>
+                    </ul>
+                </li>
             </ul>
-            <hr style="border: 0; border-top: 1px solid #334155; margin: 20px 0;">
-            <button class="btn-salir" onclick="localStorage.clear(); location.href='/login.html'">Salir</button>
+            <hr>
+            <button onclick="localStorage.clear(); location.href='/login.html'" style="width:100%; background: #ef4444; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer;">Salir</button>
         </aside>
 
         <main class="content">
-            <h2 class="section-title">Gestión de Registros</h2>
-            <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Esta es una pantalla estática de demostración. Los botones de CRUD no afectan la base de datos.</p>
+            <h2 style="border-left: 4px solid #3b82f6; padding-left: 10px; color: #1e293b; margin-bottom: 5px;">Gestión de Registros (1.2)</h2>
+            <p style="color: #64748b; margin-bottom: 20px;">Esta es una pantalla estática de demostración. Los botones de CRUD no afectan la base de datos.</p>
             
-            <button class="btn-primary" onclick="alert('Simulación: Abriendo formulario para AGREGAR un nuevo registro...')">
-                + Agregar Nuevo Registro
-            </button>
+            <button onclick="alert('Simulación: Agregando registro...')" style="background-color: #4f46e5; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; margin-bottom: 20px;">+ Agregar Nuevo Registro</button>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre de Registro</th>
-                        <th>Descripción</th>
-                        <th>Estado</th>
-                        <th>Acciones CRUD</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Dato de Prueba 01</td>
-                        <td>Este es un registro de relleno para cumplir la rúbrica</td>
-                        <td><span style="color: #10b981; font-weight: 500;">Activo</span></td>
-                        <td>
-                            <button class="action-btn btn-view" onclick="alert('Simulación: Viendo DETALLE del registro 1')">Ver</button>
-                            <button class="action-btn btn-edit" onclick="alert('Simulación: Abriendo formulario para EDITAR registro 1')">Editar</button>
-                            <button class="action-btn btn-delete" onclick="alert('Simulación: Eliminando registro 1 de forma lógica')">Eliminar</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Dato de Prueba 02</td>
-                        <td>Otro registro simulado sin conexión a BD</td>
-                        <td><span style="color: #ef4444; font-weight: 500;">Inactivo</span></td>
-                        <td>
-                            <button class="action-btn btn-view" onclick="alert('Simulación: Viendo DETALLE del registro 2')">Ver</button>
-                            <button class="action-btn btn-edit" onclick="alert('Simulación: Abriendo formulario para EDITAR registro 2')">Editar</button>
-                            <button class="action-btn btn-delete" onclick="alert('Simulación: Eliminando registro 2 de forma lógica')">Eliminar</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden;">
+                <table style="width: 100%; border-collapse: collapse; text-align: center;">
+                    <thead style="background-color: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                        <tr>
+                            <th style="padding: 15px; color: #64748b; font-weight: bold; font-size: 13px;">ID</th>
+                            <th style="padding: 15px; color: #64748b; font-weight: bold; font-size: 13px;">NOMBRE DE REGISTRO</th>
+                            <th style="padding: 15px; color: #64748b; font-weight: bold; font-size: 13px;">DESCRIPCIÓN</th>
+                            <th style="padding: 15px; color: #64748b; font-weight: bold; font-size: 13px;">ESTADO</th>
+                            <th style="padding: 15px; color: #64748b; font-weight: bold; font-size: 13px;">ACCIONES CRUD</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 15px; color: #333;">1</td>
+                            <td style="padding: 15px; color: #333;">Dato de Prueba 01</td>
+                            <td style="padding: 15px; color: #666;">Este es un registro de relleno para cumplir la rúbrica</td>
+                            <td style="padding: 15px; color: #10b981; font-weight: bold;">Activo</td>
+                            <td style="padding: 15px;">
+                                <button onclick="alert('Ver')" style="border: 1px solid #3b82f6; color: #3b82f6; background: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Ver</button>
+                                <button onclick="alert('Editar')" style="border: 1px solid #f59e0b; color: #f59e0b; background: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Editar</button>
+                                <button onclick="alert('Eliminar')" style="border: 1px solid #ef4444; color: #ef4444; background: white; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Eliminar</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </main>
-
     </div>
 
     <script>
-        /* ==========================================
-           1. VALIDAR SEGURIDAD
-           ========================================== */
-        if (!localStorage.getItem("token")) {
-            window.location.href = "/login.html";
-        }
-
-        /* ==========================================
-           2. CARGAR EL MENÚ PARA NO PERDER LA NAVEGACIÓN
-           ========================================== */
-        async function cargarMenuDinamico() {
-            const token = localStorage.getItem("token");
-            try {
-                const response = await fetch("/api/menu-dinamico", {
-                    headers: { "Authorization": `Bearer ${token}` }
-                });
-
-                if (response.status === 401 || response.status === 403) {
-                    window.location.href = "/error.html";
-                    return;
-                }
-
-                if (response.ok) {
-                    const modulos = await response.json();
-                    const lista = document.getElementById("lista-menu");
-                    lista.innerHTML = "";
-                    
-                    modulos.forEach(m => {
-                        const nombre = m.nombre || m.str_nombre_modulo || m.str_nombre; 
-                        if(!nombre) return;
-                        
-                        // Genera el link limpiando espacios
-                        let link = nombre.toLowerCase().replace(/ /g, "");
-                        if (nombre.toLowerCase() === 'usuario') link = 'usuarios';
-                        
-                        // Quité el emoji de carpeta para que luzca limpio como en tu imagen
-                        lista.innerHTML += `<li><a href="/${link}.html">${nombre}</a></li>`;
-                    });
-                }
-            } catch (e) { 
-                console.error("Error menú:", e); 
+        document.addEventListener("DOMContentLoaded", () => {
+            const nombreGuardado = localStorage.getItem("nombre_usuario");
+            if (nombreGuardado) {
+                document.getElementById("nombre-usuario-nav").innerText = nombreGuardado;
+            } else {
+                document.getElementById("nombre-usuario-nav").innerText = "Invitado";
             }
-        }
-
-        document.addEventListener("DOMContentLoaded", cargarMenuDinamico);
+        });
     </script>
 </body>
 </html>
