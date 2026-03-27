@@ -20,6 +20,12 @@ function manejarErroresFetch(response) {
    LÓGICA DEL MODAL (Ventana Emergente)
    ========================================== */
 function abrirModalUsuario() {
+    // 🛡️ CANDADO LÓGICO: Evita que abran el modal si no tienen permiso
+    if (window.permisosPantalla && window.permisosPantalla.agregar === false) {
+        alert("⛔ Acción denegada: No tienes permiso para crear usuarios.");
+        return;
+    }
+
     limpiarFormularioUsuario();
     document.getElementById("modal-titulo").innerText = "Crear Nuevo Usuario";
     document.getElementById("modal-usuario").style.display = "block";
@@ -86,6 +92,12 @@ async function cargarUsuarios(pagina = 1) {
    EDITAR USUARIO (Cargar datos al modal)
    ========================================== */
 function editarUsuario(id) {
+    // 🛡️ CANDADO LÓGICO: Evita que editen si inyectan el botón a la fuerza
+    if (window.permisosPantalla && window.permisosPantalla.editar === false) {
+        alert("⛔ Acción denegada: No tienes permiso para editar usuarios.");
+        return;
+    }
+
     const u = listaUsuariosData.find(user => user.id === id);
     if (!u) return;
 
@@ -272,13 +284,12 @@ async function cargarMenuDinamico() {
 
             lista.innerHTML = htmlMenu;
 
-            // Permisos de botones
+            // Conservamos tu lógica anterior por si acaso, aunque el nuevo seguridad.js ya oculta todo por CSS
             if (moduloActual) {
                 const noPuedeAgregar = (moduloActual.agregar === false || moduloActual.agregar === 0 || moduloActual.bit_agregar === false || moduloActual.bit_agregar === 0);
                 const noPuedeEliminar = (moduloActual.eliminar === false || moduloActual.eliminar === 0 || moduloActual.bit_eliminar === false || moduloActual.bit_eliminar === 0);
 
                 const btnCrear = document.getElementById("btn-crear");
-                // Si no puede agregar, ocultamos el botón que abre el modal
                 if (btnCrear && noPuedeAgregar) {
                     const btnAbrirModal = document.querySelector("button[onclick='abrirModalUsuario()']");
                     if(btnAbrirModal) btnAbrirModal.style.display = "none";
@@ -298,6 +309,12 @@ async function cargarMenuDinamico() {
    ELIMINAR USUARIO
    ========================================== */
 async function eliminarUsuario(id) {
+    // 🛡️ CANDADO LÓGICO: Evita borrados maliciosos si forzaron el botón
+    if (window.permisosPantalla && window.permisosPantalla.eliminar === false) {
+        alert("⛔ Acción denegada: No tienes permiso para eliminar usuarios.");
+        return;
+    }
+
     if(confirm("¿Seguro que deseas desactivar este usuario?")) {
         const token = localStorage.getItem("token");
         const response = await fetch(`${API}/usuarios/${id}`, {

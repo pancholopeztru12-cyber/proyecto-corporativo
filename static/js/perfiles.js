@@ -16,6 +16,12 @@ function manejarErroresFetch(response) {
 
 /* === LÓGICA DE LA VENTANA EMERGENTE (MODAL) === */
 function abrirModalPerfil() {
+    // 🛡️ CANDADO LÓGICO: Evita que abran el modal si no tienen permiso
+    if (window.permisosPantalla && window.permisosPantalla.agregar === false) {
+        alert("⛔ Acción denegada: No tienes permiso para crear perfiles.");
+        return;
+    }
+
     limpiarFormularioPerfil(); // Limpiamos los campos antes de abrir
     document.getElementById("modal-titulo").innerText = "Crear Nuevo Perfil";
     document.getElementById("modal-perfil").style.display = "block";
@@ -73,6 +79,12 @@ async function cargarPerfiles() {
 
 /* === EDITAR PERFIL (Llenar formulario y abrir modal) === */
 function editarPerfil(id) {
+    // 🛡️ CANDADO LÓGICO: Evita que editen si inyectan el botón a la fuerza
+    if (window.permisosPantalla && window.permisosPantalla.editar === false) {
+        alert("⛔ Acción denegada: No tienes permiso para editar perfiles.");
+        return;
+    }
+
     const p = listaPerfilesData.find(perfil => perfil.id === id);
     if (!p) return;
 
@@ -131,6 +143,12 @@ async function guardarPerfil() {
 
 /* === ELIMINAR PERFIL === */
 async function eliminarPerfil(id) {
+    // 🛡️ CANDADO LÓGICO: Evita borrados maliciosos
+    if (window.permisosPantalla && window.permisosPantalla.eliminar === false) {
+        alert("⛔ Acción denegada: No tienes permiso para eliminar perfiles.");
+        return;
+    }
+
     if(confirm("¿Seguro que deseas eliminar este perfil? Esto podría afectar a los usuarios asignados a él.")) {
         const token = localStorage.getItem("token");
         const response = await fetch(`${API}/${id}`, {

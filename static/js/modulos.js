@@ -37,7 +37,7 @@ async function cargarModulos() {
                     <td><span style="background: #e0e7ff; color: #4338ca; padding: 4px 12px; border-radius: 12px; font-weight: bold;">${nombreStr || "N/A"}</span></td>
                     <td>${rutaStr || "N/A"}</td>
                     <td>
-                        <button onclick="abrirEdicion(${m.id}, '${nombreStr}', '${rutaStr}')" style="border: 1px solid #f59e0b; color: #f59e0b; background: white; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                        <button class="btn-editar" onclick="abrirEdicion(${m.id}, '${nombreStr}', '${rutaStr}')" style="border: 1px solid #f59e0b; color: #f59e0b; background: white; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
                             Editar
                         </button>
                     </td>
@@ -54,6 +54,12 @@ async function cargarModulos() {
 
 // 1. Mostrar el formulario con los datos cargados
 function abrirEdicion(id, nombre, ruta) {
+    // 🛡️ CANDADO LÓGICO: Evita que abran la edición si no tienen permiso
+    if (window.permisosPantalla && window.permisosPantalla.editar === false) {
+        alert("⛔ Acción denegada: No tienes permiso para editar módulos.");
+        return;
+    }
+
     document.getElementById("form-edicion").style.display = "block";
     document.getElementById("edit-id").value = id;
     document.getElementById("edit-nombre").value = nombre;

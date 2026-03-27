@@ -122,7 +122,6 @@ async function cargarMenuDinamico() {
 async function cargarPermisos() {
     const token = localStorage.getItem("token");
     try {
-        // Obtenemos los permisos registrados en la base de datos
         const response = await fetch(`${API}/permisos_perfil?pagina=1`, { 
             headers: { "Authorization": `Bearer ${token}` }
         });
@@ -146,12 +145,17 @@ function renderizarTablaMatriz() {
         return;
     }
 
-    btnGuardar.style.display = "inline-block";
+    // 🛡️ CANDADO VISUAL: Solo mostrar el botón si tiene permisos de edición
+    if (window.permisosPantalla && window.permisosPantalla.editar === false) {
+        btnGuardar.style.display = "none";
+    } else {
+        btnGuardar.style.display = "inline-block";
+    }
 
     // 1. Filtrar permisos solo del perfil seleccionado
     const permisosDelPerfil = permisosActuales.filter(p => p.id_perfil == idPerfil);
 
-    // 2. Agrupar módulos visualmente (El Truco de JS)
+    // 2. Agrupar módulos visualmente
     const grupos = { "Seguridad": [], "Principal 1": [], "Principal 2": [], "Otros": [] };
     
     todosLosModulos.forEach(m => {
@@ -167,13 +171,12 @@ function renderizarTablaMatriz() {
         }
     });
 
-    // 3. Dibujar la tabla construyendo un String HTML
+    // 3. Dibujar la tabla
     let htmlMatriz = "";
 
     Object.keys(grupos).forEach(categoria => {
         if (grupos[categoria].length === 0) return;
 
-        // Fila de la categoría (Acordeón header)
         htmlMatriz += `
             <tr class="fila-categoria" onclick="toggleCategoria('${categoria.replace(/\s+/g, '')}')">
                 <td colspan="6" style="padding: 12px 15px;">
@@ -183,14 +186,9 @@ function renderizarTablaMatriz() {
             </tr>
         `;
 
-        // Filas de los módulos hijos
         grupos[categoria].forEach(m => {
-            // Buscar si este perfil ya tiene permisos guardados para este módulo
             const perm = permisosDelPerfil.find(p => p.id_modulo === m.id) || {};
-            
-            // Atributos de los checkboxes
             const chk = (val) => val ? "checked" : "";
-            // Guardamos el ID del registro en DB si existe, para saber si haremos POST o PUT
             const attrIdPermisoDb = perm.id ? `data-id-permiso="${perm.id}"` : "";
 
             htmlMatriz += `
@@ -207,9 +205,16 @@ function renderizarTablaMatriz() {
     });
 
     tabla.innerHTML = htmlMatriz;
+
+    // 🛡️ CANDADO VISUAL EXTRA: Si no tiene edición, deshabilitar los checkboxes para que no engañen al usuario
+    if (window.permisosPantalla && window.permisosPantalla.editar === false) {
+        document.querySelectorAll(".chk-permiso").forEach(chk => {
+            chk.disabled = true;
+            chk.style.cursor = "not-allowed";
+        });
+    }
 }
 
-// Función para colapsar/expandir categorías
 function toggleCategoria(catClase) {
     const filas = document.querySelectorAll(`.cat-${catClase}`);
     const icono = document.getElementById(`icon-${catClase}`);
@@ -231,6 +236,12 @@ function toggleCategoria(catClase) {
    GUARDAR MATRIZ COMPLETA
    ========================================== */
 async function guardarMatrizPermisos() {
+    // 🛡️ CANDADO LÓGICO
+    if (window.permisosPantalla && window.permisosPantalla.editar === false) {
+        alert("⛔ Acción denegada: No tienes permiso para modificar esta matriz.");
+        return;
+    }
+
     const token = localStorage.getItem("token");
     const idPerfil = document.getElementById("select_perfil").value;
     const filas = document.querySelectorAll(".fila-modulo");
@@ -245,38 +256,28 @@ async function guardarMatrizPermisos() {
 
     filas.forEach(fila => {
         const idModulo = fila.getAttribute("data-id-modulo");
-        
-        // Obtenemos los valores de los checkboxes de esta fila
         const chkAgregar = fila.querySelector(".chk-agregar");
-        const bitAgregar = chkAgregar.checked;
-        const bitEditar = fila.querySelector(".chk-editar").checked;
-        const bitEliminar = fila.querySelector(".chk-eliminar").checked;
-        const bitConsulta = fila.querySelector(".chk-consulta").checked;
-        const bitDetalle = fila.querySelector(".chk-detalle").checked;
         
-        const idPermisoExistente = chkAgregar.getAttribute("data-id-permiso");
-
         const payload = {
             id_perfil: parseInt(idPerfil),
-            id_modulos: [parseInt(idModulo)], // Tu API actual espera un array
-            bit_agregar: bitAgregar,
-            bit_editar: bitEditar,
-            bit_eliminar: bitEliminar,
-            bit_consulta: bitConsulta,
-            bit_detalle: bitDetalle
+            id_modulos: [parseInt(idModulo)], 
+            bit_agregar: chkAgregar.checked,
+            bit_editar: fila.querySelector(".chk-editar").checked,
+            bit_eliminar: fila.querySelector(".chk-eliminar").checked,
+            bit_consulta: fila.querySelector(".chk-consulta").checked,
+            bit_detalle: fila.querySelector(".chk-detalle").checked
         };
 
-        const tieneAlgunPermiso = bitAgregar || bitEditar || bitEliminar || bitConsulta || bitDetalle;
+        const idPermisoExistente = chkAgregar.getAttribute("data-id-permiso");
+        const tieneAlgunPermiso = payload.bit_agregar || payload.bit_editar || payload.bit_eliminar || payload.bit_consulta || payload.bit_detalle;
 
         if (idPermisoExistente) {
-            // Si el registro ya existía en la DB, lo actualizamos (PUT)
             peticiones.push(fetch(`${API}/permisos_perfil/${idPermisoExistente}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
                 body: JSON.stringify(payload)
             }));
         } else if (tieneAlgunPermiso) {
-            // Si es un permiso nuevo y marcaron al menos una casilla, lo creamos (POST)
             peticiones.push(fetch(`${API}/permisos_perfil`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -286,10 +287,8 @@ async function guardarMatrizPermisos() {
     });
 
     try {
-        // Ejecutamos todas las peticiones al mismo tiempo
         await Promise.all(peticiones);
         alert("¡Permisos actualizados correctamente!");
-        // Recargamos los datos para obtener los IDs nuevos generados por la BD
         await cargarPermisos(); 
     } catch (error) {
         console.error("Error guardando matriz:", error);
@@ -316,10 +315,8 @@ document.addEventListener("DOMContentLoaded", () => {
         spanNombre.innerText = nombreGuardado;
     }
 
-    // Evento: Al cambiar de perfil en el select, dibujamos su matriz
     document.getElementById("select_perfil").addEventListener("change", renderizarTablaMatriz);
 
-    // Arrancamos la carga de datos
     cargarCatalogos();
     cargarMenuDinamico();
     cargarPermisos();
