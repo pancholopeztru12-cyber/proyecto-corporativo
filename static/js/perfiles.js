@@ -45,6 +45,13 @@ function limpiarFormularioPerfil() {
 /* === CARGAR PERFILES === */
 async function cargarPerfiles() {
     const token = localStorage.getItem("token");
+    const tabla = document.getElementById("tablaPerfiles");
+    
+    // ⏳ Mostrar mensaje de carga antes de pedir los datos al servidor
+    if (tabla) {
+        tabla.innerHTML = `<tr><td colspan="3" style="text-align: center; padding: 20px; color: #64748b; font-weight: bold;">⏳ Cargando perfiles, por favor espera...</td></tr>`;
+    }
+
     try {
         const response = await fetch(API, {
             headers: { "Authorization": `Bearer ${token}` }
@@ -55,13 +62,17 @@ async function cargarPerfiles() {
         if (response.ok) {
             const data = await response.json();
             listaPerfilesData = data; 
-            const tabla = document.getElementById("tablaPerfiles");
+            
+            if (data.length === 0) {
+                tabla.innerHTML = `<tr><td colspan="3" style="text-align: center; padding: 20px; color: #64748b;">No hay perfiles registrados.</td></tr>`;
+                return;
+            }
             
             tabla.innerHTML = data.map(p => {
                 const nombrePerfil = p.str_nombre_perfil || p.nombre || "Sin nombre";
                 const badgeAdmin = p.bit_administrador ? `<span style="background: #fee2e2; color: #dc2626; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin-left: 8px; font-weight: bold;">ADMIN</span>` : '';
 
-                // Candados de permisos con estilos unificados (sin márgenes raros, usando flexbox en el contenedor)
+                // Candados de permisos con estilos unificados (usando flexbox en el contenedor)
                 const puedeVerDetalle = (!window.permisosPantalla || window.permisosPantalla.detalle) ? `<button class="btn-detalle" onclick="verDetallePerfil(${p.id})" style="color:#0ea5e9; border: 1px solid #0ea5e9; padding: 4px 8px; border-radius: 4px; background: white; cursor: pointer; font-size: 13px; font-weight: 500;">Detalle</button>` : '';
                 const puedeEditar = (!window.permisosPantalla || window.permisosPantalla.editar) ? `<button class="btn-editar" onclick="editarPerfil(${p.id})" style="color:#f59e0b; border: 1px solid #f59e0b; padding: 4px 8px; border-radius: 4px; background: white; cursor: pointer; font-size: 13px; font-weight: 500;">Editar</button>` : '';
                 const puedeEliminar = (!window.permisosPantalla || window.permisosPantalla.eliminar) ? `<button class="btn-eliminar" onclick="eliminarPerfil(${p.id})" style="color:#ef4444; border: 1px solid #ef4444; padding: 4px 8px; border-radius: 4px; background: white; cursor: pointer; font-size: 13px; font-weight: 500;">Eliminar</button>` : '';
@@ -85,8 +96,12 @@ async function cargarPerfiles() {
         }
     } catch (error) {
         console.error("Error cargando perfiles:", error);
+        if (tabla) {
+            tabla.innerHTML = `<tr><td colspan="3" style="text-align: center; padding: 20px; color: red;">❌ Error al conectar con el servidor.</td></tr>`;
+        }
     }
 }
+
 /* === VER DETALLE (Solo lectura) === */
 function verDetallePerfil(id) {
     if (window.permisosPantalla && window.permisosPantalla.detalle === false) {
@@ -111,7 +126,7 @@ function verDetallePerfil(id) {
     document.getElementById("modal-perfil").style.display = "block";
 }
 
-/* === EDITAR PERFIL (Llenar formulario ir modal) === */
+/* === EDITAR PERFIL (Llenar formulario y abrir modal) === */
 function editarPerfil(id) {
     // 🛡️ CANDADO LÓGICO: Evita que editen si inyectan el botón a la fuerza
     if (window.permisosPantalla && window.permisosPantalla.editar === false) {
@@ -280,6 +295,18 @@ document.addEventListener("DOMContentLoaded", () => {
         if (event.target === modal) cerrarModalPerfil();
     }
 
-    cargarPerfiles();
     cargarMenuDinamico();
+
+    // 🚀 SOLUCIÓN A LA "CARRERA": Esperar a que los permisos carguen antes de hacer la tabla
+    let intentos = 0;
+    const esperarPermisos = setInterval(() => {
+        intentos++;
+        
+        // Verificamos si window.permisosPantalla ya tiene datos adentro (como {detalle: true})
+        // o si ya pasaron 1.5 segundos (15 intentos) para no esperar infinitamente.
+        if ((window.permisosPantalla && Object.keys(window.permisosPantalla).length > 0) || intentos > 15) {
+            clearInterval(esperarPermisos); // Detenemos el reloj
+            cargarPerfiles(); // ¡Ahora sí, dibujamos la tabla con los permisos correctos!
+        }
+    }, 100); // Revisa cada 100 milisegundos si ya llegaron los permisos
 });
