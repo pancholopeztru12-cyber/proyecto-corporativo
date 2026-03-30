@@ -21,7 +21,8 @@ function configurarBotonAgregar() {
     const btnAgregar = document.getElementById("btn-agregar");
     if (!btnAgregar) return;
 
-    if (window.permisosPantalla.insertar) {
+    // ¡CORRECCIÓN APLICADA AQUÍ! Ahora busca "agregar" en lugar de "insertar"
+    if (window.permisosPantalla.agregar) {
         btnAgregar.style.display = "inline-block";
         btnAgregar.onclick = () => alert('Simulación: Agregando registro...');
     } else {

@@ -17,12 +17,13 @@ function esperarPermisosYRenderizar() {
     }
 }
 
-// Oculta o muestra el botón "+ Agregar Nuevo Registro" dependiendo del permiso "insertar"
+// Oculta o muestra el botón "+ Agregar Nuevo Registro" dependiendo del permiso "agregar"
 function configurarBotonAgregar() {
     const btnAgregar = document.getElementById("btn-agregar");
     if (!btnAgregar) return;
 
-    if (window.permisosPantalla.insertar) {
+    // ¡CORRECCIÓN APLICADA AQUÍ! Ahora busca "agregar"
+    if (window.permisosPantalla.agregar) {
         btnAgregar.style.display = "inline-block";
         btnAgregar.onclick = () => alert('Simulación: Agregando registro en 2.2...');
     } else {
