@@ -16,26 +16,22 @@ function manejarErroresFetch(response) {
 
 /* === LÓGICA DE LA VENTANA EMERGENTE (MODAL) === */
 function abrirModalPerfil() {
-    // 🛡️ CANDADO LÓGICO: Evita que abran el modal si no tienen permiso
     if (window.permisosPantalla && window.permisosPantalla.agregar === false) {
         alert("⛔ Acción denegada: No tienes permiso para crear perfiles.");
         return;
     }
-
-    limpiarFormularioPerfil(); // Limpiamos los campos antes de abrir
+    limpiarFormularioPerfil();
     document.getElementById("modal-titulo").innerText = "Crear Nuevo Perfil";
     document.getElementById("modal-perfil").style.display = "block";
 }
 
 function cerrarModalPerfil() {
     document.getElementById("modal-perfil").style.display = "none";
-
     document.getElementById("nuevo_nombre_perfil").disabled = false;
     document.getElementById("esAdministrador").disabled = false;
     document.getElementById("btn-crear").style.display = "block";
 }
 
-/* === LIMPIAR FORMULARIO === */
 function limpiarFormularioPerfil() {
     document.getElementById("perfil_id").value = "";
     document.getElementById("nuevo_nombre_perfil").value = "";
@@ -47,7 +43,6 @@ async function cargarPerfiles() {
     const token = localStorage.getItem("token");
     const tabla = document.getElementById("tablaPerfiles");
     
-    // ⏳ Mostrar mensaje de carga antes de pedir los datos al servidor
     if (tabla) {
         tabla.innerHTML = `<tr><td colspan="3" style="text-align: center; padding: 20px; color: #64748b; font-weight: bold;">⏳ Cargando perfiles, por favor espera...</td></tr>`;
     }
@@ -62,37 +57,7 @@ async function cargarPerfiles() {
         if (response.ok) {
             const data = await response.json();
             listaPerfilesData = data; 
-            
-            if (data.length === 0) {
-                tabla.innerHTML = `<tr><td colspan="3" style="text-align: center; padding: 20px; color: #64748b;">No hay perfiles registrados.</td></tr>`;
-                return;
-            }
-            
-            tabla.innerHTML = data.map(p => {
-                const nombrePerfil = p.str_nombre_perfil || p.nombre || "Sin nombre";
-                const badgeAdmin = p.bit_administrador ? `<span style="background: #fee2e2; color: #dc2626; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin-left: 8px; font-weight: bold;">ADMIN</span>` : '';
-
-                // Candados de permisos con estilos unificados (usando flexbox en el contenedor)
-                const puedeVerDetalle = (!window.permisosPantalla || window.permisosPantalla.detalle) ? `<button class="btn-detalle" onclick="verDetallePerfil(${p.id})" style="color:#0ea5e9; border: 1px solid #0ea5e9; padding: 4px 8px; border-radius: 4px; background: white; cursor: pointer; font-size: 13px; font-weight: 500;">Detalle</button>` : '';
-                const puedeEditar = (!window.permisosPantalla || window.permisosPantalla.editar) ? `<button class="btn-editar" onclick="editarPerfil(${p.id})" style="color:#f59e0b; border: 1px solid #f59e0b; padding: 4px 8px; border-radius: 4px; background: white; cursor: pointer; font-size: 13px; font-weight: 500;">Editar</button>` : '';
-                const puedeEliminar = (!window.permisosPantalla || window.permisosPantalla.eliminar) ? `<button class="btn-eliminar" onclick="eliminarPerfil(${p.id})" style="color:#ef4444; border: 1px solid #ef4444; padding: 4px 8px; border-radius: 4px; background: white; cursor: pointer; font-size: 13px; font-weight: 500;">Eliminar</button>` : '';
-
-                return `
-                <tr>
-                    <td><strong>${p.id}</strong></td>
-                    <td>
-                        <span style="background: #e0e7ff; color: #4338ca; padding: 4px 12px; border-radius: 12px; font-weight: bold;">${nombrePerfil}</span>
-                        ${badgeAdmin}
-                    </td>
-                    <td>
-                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                            ${puedeVerDetalle}
-                            ${puedeEditar}
-                            ${puedeEliminar}
-                        </div>
-                    </td>
-                </tr>
-            `}).join('');
+            renderizarTablaPerfiles(listaPerfilesData); // Dibujamos con la nueva función
         }
     } catch (error) {
         console.error("Error cargando perfiles:", error);
@@ -100,6 +65,89 @@ async function cargarPerfiles() {
             tabla.innerHTML = `<tr><td colspan="3" style="text-align: center; padding: 20px; color: red;">❌ Error al conectar con el servidor.</td></tr>`;
         }
     }
+}
+
+/* === NUEVO: RENDERIZAR TABLA (Para poder filtrar sin llamar al servidor) === */
+function renderizarTablaPerfiles(data) {
+    const tabla = document.getElementById("tablaPerfiles");
+    if (!tabla) return;
+
+    if (data.length === 0) {
+        tabla.innerHTML = `<tr><td colspan="3" style="text-align: center; padding: 20px; color: #64748b;">No hay perfiles registrados o no coinciden con la búsqueda.</td></tr>`;
+        return;
+    }
+    
+    tabla.innerHTML = data.map(p => {
+        const nombrePerfil = p.str_nombre_perfil || p.nombre || "Sin nombre";
+        const badgeAdmin = p.bit_administrador ? `<span style="background: #fee2e2; color: #dc2626; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin-left: 8px; font-weight: bold;">ADMIN</span>` : '';
+
+        const puedeVerDetalle = (!window.permisosPantalla || window.permisosPantalla.detalle) ? `<button class="btn-detalle" onclick="verDetallePerfil(${p.id})" style="color:#0ea5e9; border: 1px solid #0ea5e9; padding: 4px 8px; border-radius: 4px; background: white; cursor: pointer; font-size: 13px; font-weight: 500;">Detalle</button>` : '';
+        const puedeEditar = (!window.permisosPantalla || window.permisosPantalla.editar) ? `<button class="btn-editar" onclick="editarPerfil(${p.id})" style="color:#f59e0b; border: 1px solid #f59e0b; padding: 4px 8px; border-radius: 4px; background: white; cursor: pointer; font-size: 13px; font-weight: 500;">Editar</button>` : '';
+        const puedeEliminar = (!window.permisosPantalla || window.permisosPantalla.eliminar) ? `<button class="btn-eliminar" onclick="eliminarPerfil(${p.id})" style="color:#ef4444; border: 1px solid #ef4444; padding: 4px 8px; border-radius: 4px; background: white; cursor: pointer; font-size: 13px; font-weight: 500;">Eliminar</button>` : '';
+
+        return `
+        <tr>
+            <td><strong>${p.id}</strong></td>
+            <td>
+                <span style="background: #e0e7ff; color: #4338ca; padding: 4px 12px; border-radius: 12px; font-weight: bold;">${nombrePerfil}</span>
+                ${badgeAdmin}
+            </td>
+            <td>
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                    ${puedeVerDetalle}
+                    ${puedeEditar}
+                    ${puedeEliminar}
+                </div>
+            </td>
+        </tr>
+    `}).join('');
+}
+
+/* === NUEVO: FUNCIÓN PARA FILTRAR === */
+function filtrarPerfiles() {
+    const input = document.getElementById("inputFiltroPerfiles");
+    if (!input) return;
+
+    const termino = input.value.toLowerCase().trim();
+    
+    const resultados = listaPerfilesData.filter(p => {
+        const nombre = (p.str_nombre_perfil || p.nombre || "").toLowerCase();
+        const id = p.id ? p.id.toString() : "";
+        return nombre.includes(termino) || id.includes(termino);
+    });
+
+    renderizarTablaPerfiles(resultados);
+}
+
+/* === NUEVO: FUNCIÓN PARA EXPORTAR A EXCEL (CSV) === */
+function exportarExcel() {
+    if (listaPerfilesData.length === 0) {
+        alert("⚠️ No hay datos para exportar.");
+        return;
+    }
+
+    let csvContent = "ID,Nombre del Perfil,Es Administrador\n";
+
+    listaPerfilesData.forEach(p => {
+        const id = p.id || "";
+        const nombre = p.str_nombre_perfil || p.nombre || "Sin nombre";
+        const esAdmin = p.bit_administrador ? "Si" : "No";
+        
+        csvContent += `${id},"${nombre}",${esAdmin}\n`;
+    });
+
+    // \uFEFF asegura que Excel lea los acentos y ñ correctamente (UTF-8)
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", "Reporte_Perfiles.csv"); 
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 /* === VER DETALLE (Solo lectura) === */
@@ -112,23 +160,20 @@ function verDetallePerfil(id) {
     const p = listaPerfilesData.find(perfil => perfil.id === id);
     if (!p) return;
 
-    // Llenar datos
     document.getElementById("perfil_id").value = p.id;
     document.getElementById("nuevo_nombre_perfil").value = p.str_nombre_perfil || p.nombre || "";
     document.getElementById("esAdministrador").checked = p.bit_administrador || false; 
     
-    // Configurar Modal para Solo Lectura
     document.getElementById("modal-titulo").innerText = `Detalle del Perfil (ID: ${id})`;
-    document.getElementById("nuevo_nombre_perfil").disabled = true; // Bloquea el input
-    document.getElementById("esAdministrador").disabled = true; // Bloquea el switch
-    document.getElementById("btn-crear").style.display = "none"; // Oculta el botón guardar
+    document.getElementById("nuevo_nombre_perfil").disabled = true; 
+    document.getElementById("esAdministrador").disabled = true; 
+    document.getElementById("btn-crear").style.display = "none"; 
 
     document.getElementById("modal-perfil").style.display = "block";
 }
 
-/* === EDITAR PERFIL (Llenar formulario y abrir modal) === */
+/* === EDITAR PERFIL === */
 function editarPerfil(id) {
-    // 🛡️ CANDADO LÓGICO: Evita que editen si inyectan el botón a la fuerza
     if (window.permisosPantalla && window.permisosPantalla.editar === false) {
         alert("⛔ Acción denegada: No tienes permiso para editar perfiles.");
         return;
@@ -145,37 +190,31 @@ function editarPerfil(id) {
     document.getElementById("nuevo_nombre_perfil").disabled = false;
     document.getElementById("esAdministrador").disabled = false;
     document.getElementById("btn-crear").style.display = "block";
-    document.getElementById("modal-perfil").style.display = "block"; // Abrimos el modal
+    document.getElementById("modal-perfil").style.display = "block"; 
 }
 
-/* === GUARDAR (CREAR O ACTUALIZAR) PERFIL === */
+/* === GUARDAR PERFIL === */
 async function guardarPerfil() {
     const token = localStorage.getItem("token");
     const id = document.getElementById("perfil_id").value;
-    const nombrePerfilRaw = document.getElementById("nuevo_nombre_perfil").value;
+    const nombrePerfilLimpio = document.getElementById("nuevo_nombre_perfil").value.trim();
     const esAdmin = document.getElementById("esAdministrador").checked; 
 
-    // Limpiamos espacios al inicio y al final
-    const nombrePerfilLimpio = nombrePerfilRaw.trim();
-
-    // 🛡️ CANDADOS DE VALIDACIÓN DE LONGITUD
     if (!nombrePerfilLimpio) {
         alert("⚠️ El nombre del perfil es obligatorio.");
         return;
     }
-
     if (nombrePerfilLimpio.length < 3) {
         alert("⚠️ El nombre del perfil debe tener al menos 3 caracteres.");
         return;
     }
-
     if (nombrePerfilLimpio.length > 50) {
         alert("⚠️ El nombre del perfil es demasiado largo. Máximo 50 caracteres.");
         return;
     }
 
     const bodyData = { 
-        str_nombre_perfil: nombrePerfilLimpio, // Enviamos el nombre limpio
+        str_nombre_perfil: nombrePerfilLimpio,
         bit_administrador: esAdmin
     };
 
@@ -195,7 +234,6 @@ async function guardarPerfil() {
         if (manejarErroresFetch(response)) return;
 
         if (response.ok) {
-            // Cerramos el modal en lugar de solo limpiar
             cerrarModalPerfil();
             cargarPerfiles();
             alert(id ? "Perfil actualizado con éxito" : "Perfil creado con éxito");
@@ -209,7 +247,6 @@ async function guardarPerfil() {
 
 /* === ELIMINAR PERFIL === */
 async function eliminarPerfil(id) {
-    // 🛡️ CANDADO LÓGICO: Evita borrados maliciosos
     if (window.permisosPantalla && window.permisosPantalla.eliminar === false) {
         alert("⛔ Acción denegada: No tienes permiso para eliminar perfiles.");
         return;
@@ -286,7 +323,6 @@ async function cargarMenuDinamico() {
                 htmlMenu += `</ul></li>`;
             }
 
-            // <-- DIBUJAMOS PRINCIPAL 2 AQUI -->
             if (menuPrincipal2.length > 0) {
                 htmlMenu += `<li style="margin-top:15px;"><strong style="color:#333;">Principal 2</strong><ul style="list-style:circle; padding-left:20px; margin-top:5px;">`;
                 menuPrincipal2.forEach(nombre => {
@@ -313,7 +349,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const spanNombre = document.getElementById("nombre-usuario-nav");
     if (spanNombre) spanNombre.innerText = nombreGuardado;
 
-    // Cerrar modal si hacen clic fuera de la cajita negra
     window.onclick = function(event) {
         const modal = document.getElementById('modal-perfil');
         if (event.target === modal) cerrarModalPerfil();
@@ -321,16 +356,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     cargarMenuDinamico();
 
-    // 🚀 SOLUCIÓN A LA "CARRERA": Esperar a que los permisos carguen antes de hacer la tabla
     let intentos = 0;
     const esperarPermisos = setInterval(() => {
         intentos++;
-        
-        // Verificamos si window.permisosPantalla ya tiene datos adentro (como {detalle: true})
-        // o si ya pasaron 1.5 segundos (15 intentos) para no esperar infinitamente.
         if ((window.permisosPantalla && Object.keys(window.permisosPantalla).length > 0) || intentos > 15) {
-            clearInterval(esperarPermisos); // Detenemos el reloj
-            cargarPerfiles(); // ¡Ahora sí, dibujamos la tabla con los permisos correctos!
+            clearInterval(esperarPermisos); 
+            cargarPerfiles(); 
         }
-    }, 100); // Revisa cada 100 milisegundos si ya llegaron los permisos
+    }, 100); 
 });
