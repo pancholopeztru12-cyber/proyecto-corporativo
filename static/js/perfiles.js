@@ -29,6 +29,10 @@ function abrirModalPerfil() {
 
 function cerrarModalPerfil() {
     document.getElementById("modal-perfil").style.display = "none";
+
+    document.getElementById("nuevo_nombre_perfil").disabled = false;
+    document.getElementById("esAdministrador").disabled = false;
+    document.getElementById("btn-crear").style.display = "block";
 }
 
 /* === LIMPIAR FORMULARIO === */
@@ -55,8 +59,12 @@ async function cargarPerfiles() {
             
             tabla.innerHTML = data.map(p => {
                 const nombrePerfil = p.str_nombre_perfil || p.nombre || "Sin nombre";
-                // Etiqueta visual si es administrador
                 const badgeAdmin = p.bit_administrador ? `<span style="background: #fee2e2; color: #dc2626; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin-left: 8px; font-weight: bold;">ADMIN</span>` : '';
+
+                // Candados de permisos para mostrar u ocultar botones
+                const puedeEditar = (!window.permisosPantalla || window.permisosPantalla.editar) ? `<button class="btn-editar" onclick="editarPerfil(${p.id})" style="color:orange; border: 1px solid orange; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer;">Editar</button>` : '';
+                const puedeEliminar = (!window.permisosPantalla || window.permisosPantalla.eliminar) ? `<button class="btn-eliminar" onclick="eliminarPerfil(${p.id})" style="color:red; border: 1px solid red; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer; margin-left: 5px;">Eliminar</button>` : '';
+                const puedeVerDetalle = (!window.permisosPantalla || window.permisosPantalla.detalle) ? `<button class="btn-detalle" onclick="verDetallePerfil(${p.id})" style="color:#0ea5e9; border: 1px solid #0ea5e9; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer; margin-right: 5px;">Detalle</button>` : '';
 
                 return `
                 <tr>
@@ -66,8 +74,9 @@ async function cargarPerfiles() {
                         ${badgeAdmin}
                     </td>
                     <td>
-                        <button class="btn-editar" onclick="editarPerfil(${p.id})" style="color:orange; border: 1px solid orange; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer;">Editar</button>
-                        <button class="btn-eliminar" onclick="eliminarPerfil(${p.id})" style="color:red; border: 1px solid red; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer; margin-left: 5px;">Eliminar</button>
+                        ${puedeVerDetalle}
+                        ${puedeEditar}
+                        ${puedeEliminar}
                     </td>
                 </tr>
             `}).join('');
@@ -75,6 +84,29 @@ async function cargarPerfiles() {
     } catch (error) {
         console.error("Error cargando perfiles:", error);
     }
+}
+/* === VER DETALLE (Solo lectura) === */
+function verDetallePerfil(id) {
+    if (window.permisosPantalla && window.permisosPantalla.detalle === false) {
+        alert("⛔ Acción denegada: No tienes permiso para ver el detalle.");
+        return;
+    }
+
+    const p = listaPerfilesData.find(perfil => perfil.id === id);
+    if (!p) return;
+
+    // Llenar datos
+    document.getElementById("perfil_id").value = p.id;
+    document.getElementById("nuevo_nombre_perfil").value = p.str_nombre_perfil || p.nombre || "";
+    document.getElementById("esAdministrador").checked = p.bit_administrador || false; 
+    
+    // Configurar Modal para Solo Lectura
+    document.getElementById("modal-titulo").innerText = `Detalle del Perfil (ID: ${id})`;
+    document.getElementById("nuevo_nombre_perfil").disabled = true; // Bloquea el input
+    document.getElementById("esAdministrador").disabled = true; // Bloquea el switch
+    document.getElementById("btn-crear").style.display = "none"; // Oculta el botón guardar
+
+    document.getElementById("modal-perfil").style.display = "block";
 }
 
 /* === EDITAR PERFIL (Llenar formulario y abrir modal) === */
@@ -93,6 +125,9 @@ function editarPerfil(id) {
     document.getElementById("esAdministrador").checked = p.bit_administrador || false; 
     
     document.getElementById("modal-titulo").innerText = `Editar Perfil (ID: ${id})`;
+    document.getElementById("nuevo_nombre_perfil").disabled = false;
+    document.getElementById("esAdministrador").disabled = false;
+    document.getElementById("btn-crear").style.display = "block";
     document.getElementById("modal-perfil").style.display = "block"; // Abrimos el modal
 }
 
