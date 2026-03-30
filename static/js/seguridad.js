@@ -63,14 +63,13 @@
             
             let estilosOcultos = "";
 
-            // Si no tiene permiso de agregar, generamos CSS para ocultar los botones de "Nuevo"
+            // Si no tiene permiso de agregar, ocultamos los botones
             if (moduloActual.agregar === false) {
                 estilosOcultos += `
                     .btn-agregar, 
                     .btn-nuevo, 
                     [id*="nuevo"], 
-                    [id*="agregar"], 
-                    a:contains('Nuevo') { display: none !important; }
+                    [id*="agregar"] { display: none !important; }
                 `;
             }
 
@@ -90,7 +89,7 @@
                 `;
             }
 
-            // Inyectamos el CSS dinámico en la página (¡Afecta incluso a tablas que carguen después!)
+            // Inyectamos el CSS dinámico en la página
             if (estilosOcultos !== "") {
                 const styleEl = document.createElement("style");
                 styleEl.innerHTML = estilosOcultos;
