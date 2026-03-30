@@ -19,14 +19,29 @@ function manejarErroresFetch(response) {
 /* ==========================================
    LÓGICA DEL MODAL (Ventana Emergente)
    ========================================== */
+function alternarCamposLectura(soloLectura) {
+    const campos = ["nuevo_usuario", "nuevo_password", "nuevo_perfil", "nuevo_correo", "nuevo_celular", "nuevo_estado", "imagen_usuario"];
+    campos.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.disabled = soloLectura;
+    });
+    
+    // Ocultamos el botón guardar si es solo lectura
+    const btnGuardar = document.getElementById("btn-crear");
+    if (btnGuardar) {
+        btnGuardar.style.display = soloLectura ? "none" : "block";
+    }
+}
+
 function abrirModalUsuario() {
-    // 🛡️ CANDADO LÓGICO: Evita que abran el modal si no tienen permiso
+    // 🛡️ CANDADO LÓGICO
     if (window.permisosPantalla && window.permisosPantalla.agregar === false) {
         alert("⛔ Acción denegada: No tienes permiso para crear usuarios.");
         return;
     }
 
     limpiarFormularioUsuario();
+    alternarCamposLectura(false); // Aseguramos que los campos se puedan editar
     document.getElementById("modal-titulo").innerText = "Crear Nuevo Usuario";
     document.getElementById("modal-usuario").style.display = "block";
 }
@@ -36,7 +51,7 @@ function cerrarModalUsuario() {
 }
 
 /* ==========================================
-   CARGAR USUARIOS
+   CARGAR USUARIOS Y ESPERAR PERMISOS
    ========================================== */
 async function cargarUsuarios(pagina = 1) {
     paginaActual = pagina;
@@ -49,50 +64,105 @@ async function cargarUsuarios(pagina = 1) {
 
         if (manejarErroresFetch(response)) return;
 
-        const usuarios = await response.json();
-        listaUsuariosData = usuarios; 
-        const tabla = document.getElementById("tablaUsuarios");
-        tabla.innerHTML = "";
-
-        usuarios.forEach(u => {
-            const fotoUrl = u.imagen ? `/uploads/usuarios/${u.imagen}` : '/img/default.png';
-            
-            const esActivo = u.id_estado_usuario === true || u.id_estado_usuario === "true" || u.id_estado_usuario === 1;
-            const estadoTexto = esActivo ? "Activo" : "Inactivo";
-            const estadoColor = esActivo ? "#10b981" : "#ef4444"; 
-            
-            const nombreMostrar = u.nombre || u.str_nombre_usuario || "N/A";
-            const perfilMostrar = u.perfil || "Sin Perfil"; 
-            const emailMostrar = u.email || u.str_correo || "N/A";
-            const celularMostrar = u.celular || u.str_numero_celular || "N/A";
-            
-            tabla.innerHTML += `
-            <tr>
-                <td><img src="${fotoUrl}" class="user-img" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #334155;"></td>
-                <td><strong>${nombreMostrar}</strong></td>
-                <td><span style="background: #e0e7ff; color: #4338ca; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: bold;">${perfilMostrar}</span></td>
-                <td>${emailMostrar}</td>
-                <td>${celularMostrar}</td>
-                <td><span style="color: ${estadoColor}; font-weight: 600; background: ${esActivo ? '#ecfdf5' : '#fef2f2'}; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem;">${estadoTexto}</span></td>
-                <td>
-                    <button class="btn-editar" onclick="editarUsuario(${u.id})" style="color:orange; border: 1px solid orange; padding: 4px 8px; border-radius: 4px; background: transparent; cursor: pointer;">Editar</button>
-                    <button class="btn-eliminar" onclick="eliminarUsuario(${u.id})" style="color:red; border: 1px solid red; padding: 4px 8px; border-radius: 4px; background: transparent; cursor: pointer; margin-left: 5px;">Eliminar</button>
-                </td>
-            </tr>`;
-        });
-
-        document.getElementById("infoPagina").innerText = `Página ${paginaActual}`;
+        listaUsuariosData = await response.json();
+        
+        // ⏳ EL RELOJITO: Esperamos a que seguridad.js termine de leer permisos
+        esperarPermisosYRenderizar();
 
     } catch (error) {
         console.error("Error cargando usuarios:", error);
     }
 }
 
+function esperarPermisosYRenderizar() {
+    if (window.permisosPantalla) {
+        renderizarTabla();
+    } else {
+        setTimeout(esperarPermisosYRenderizar, 50);
+    }
+}
+
+function renderizarTabla() {
+    const tabla = document.getElementById("tablaUsuarios");
+    tabla.innerHTML = "";
+    const permisos = window.permisosPantalla; // Ya sabemos que existe gracias al relojito
+
+    listaUsuariosData.forEach(u => {
+        const fotoUrl = u.imagen ? `/uploads/usuarios/${u.imagen}` : '/img/default.png';
+        const esActivo = u.id_estado_usuario === true || u.id_estado_usuario === "true" || u.id_estado_usuario === 1;
+        const estadoTexto = esActivo ? "Activo" : "Inactivo";
+        const estadoColor = esActivo ? "#10b981" : "#ef4444"; 
+        
+        const nombreMostrar = u.nombre || u.str_nombre_usuario || "N/A";
+        const perfilMostrar = u.perfil || "Sin Perfil"; 
+        const emailMostrar = u.email || u.str_correo || "N/A";
+        const celularMostrar = u.celular || u.str_numero_celular || "N/A";
+
+        // 🎨 CONSTRUCCIÓN DINÁMICA DE BOTONES (FLEXBOX)
+        let botones = `<div style="display: flex; gap: 8px; justify-content: center;">`;
+
+        if (permisos.detalle) {
+            botones += `<button class="btn-detalle" onclick="verDetalleUsuario(${u.id})" style="color:#0ea5e9; border: 1px solid #0ea5e9; padding: 4px 8px; border-radius: 4px; background: transparent; cursor: pointer;">🔍 Detalle</button>`;
+        }
+        if (permisos.editar) {
+            botones += `<button class="btn-editar" onclick="editarUsuario(${u.id})" style="color:orange; border: 1px solid orange; padding: 4px 8px; border-radius: 4px; background: transparent; cursor: pointer;">✏️ Editar</button>`;
+        }
+        if (permisos.eliminar) {
+            botones += `<button class="btn-eliminar" onclick="eliminarUsuario(${u.id})" style="color:red; border: 1px solid red; padding: 4px 8px; border-radius: 4px; background: transparent; cursor: pointer;">🗑️ Eliminar</button>`;
+        }
+        
+        botones += `</div>`;
+        
+        tabla.innerHTML += `
+        <tr>
+            <td><img src="${fotoUrl}" class="user-img" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #334155;"></td>
+            <td><strong>${nombreMostrar}</strong></td>
+            <td><span style="background: #e0e7ff; color: #4338ca; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: bold;">${perfilMostrar}</span></td>
+            <td>${emailMostrar}</td>
+            <td>${celularMostrar}</td>
+            <td><span style="color: ${estadoColor}; font-weight: 600; background: ${esActivo ? '#ecfdf5' : '#fef2f2'}; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem;">${estadoTexto}</span></td>
+            <td>${botones}</td>
+        </tr>`;
+    });
+
+    document.getElementById("infoPagina").innerText = `Página ${paginaActual}`;
+}
+
+/* ==========================================
+   VER DETALLE (MODO SOLO LECTURA)
+   ========================================== */
+function verDetalleUsuario(id) {
+    if (window.permisosPantalla && window.permisosPantalla.detalle === false) {
+        alert("⛔ Acción denegada: No tienes permiso para ver detalles.");
+        return;
+    }
+
+    const u = listaUsuariosData.find(user => user.id === id);
+    if (!u) return;
+
+    // Llenamos los datos
+    document.getElementById("usuario_id").value = u.id;
+    document.getElementById("nuevo_usuario").value = u.nombre || u.str_nombre_usuario || "";
+    document.getElementById("nuevo_password").value = ""; 
+    document.getElementById("nuevo_perfil").value = u.id_perfil || "";
+    document.getElementById("nuevo_correo").value = u.email || u.str_correo || "";
+    document.getElementById("nuevo_celular").value = u.celular || u.str_numero_celular || "";
+    
+    const esActivo = u.id_estado_usuario === true || u.id_estado_usuario === "true" || u.id_estado_usuario === 1;
+    document.getElementById("nuevo_estado").value = esActivo ? "true" : "false";
+
+    // Bloqueamos los campos
+    alternarCamposLectura(true);
+
+    document.getElementById("modal-titulo").innerText = `🔍 Detalles del Usuario (Solo Lectura)`;
+    document.getElementById("modal-usuario").style.display = "block";
+}
+
 /* ==========================================
    EDITAR USUARIO (Cargar datos al modal)
    ========================================== */
 function editarUsuario(id) {
-    // 🛡️ CANDADO LÓGICO: Evita que editen si inyectan el botón a la fuerza
+    // 🛡️ CANDADO LÓGICO
     if (window.permisosPantalla && window.permisosPantalla.editar === false) {
         alert("⛔ Acción denegada: No tienes permiso para editar usuarios.");
         return;
@@ -111,8 +181,11 @@ function editarUsuario(id) {
     const esActivo = u.id_estado_usuario === true || u.id_estado_usuario === "true" || u.id_estado_usuario === 1;
     document.getElementById("nuevo_estado").value = esActivo ? "true" : "false";
 
+    // Habilitamos los campos por si antes abrieron "Detalles"
+    alternarCamposLectura(false);
+
     document.getElementById("modal-titulo").innerText = `Editar Usuario (ID: ${id})`;
-    document.getElementById("modal-usuario").style.display = "block"; // Abre el modal
+    document.getElementById("modal-usuario").style.display = "block";
 }
 
 function limpiarFormularioUsuario() {
@@ -172,7 +245,7 @@ async function guardarUsuario() {
 
         if (response.ok) {
             alert(id ? "Usuario actualizado con éxito" : "Usuario guardado con éxito");
-            cerrarModalUsuario(); // Cerramos el modal
+            cerrarModalUsuario(); 
             cargarUsuarios(paginaActual);
         } else {
             alert("Error al guardar usuario. Verifique los datos.");
@@ -224,7 +297,6 @@ async function cargarMenuDinamico() {
             if (!lista) return;
             
             lista.innerHTML = "";
-            let moduloActual = null;
 
             const menuSeguridad = [];
             const menuPrincipal1 = [];
@@ -233,10 +305,6 @@ async function cargarMenuDinamico() {
             modulos.forEach(m => {
                 const nombre = m.nombre || m.str_nombre_modulo || m.str_nombre; 
                 if (!nombre) return;
-
-                if (nombre.toLowerCase() === 'usuario') {
-                    if (m.id === 4 || !moduloActual) moduloActual = m;
-                }
 
                 const nombreLow = nombre.toLowerCase().replace(/\s+/g, '');
                 if (["perfil", "módulo", "modulo", "permisos-perfil", "permisosperfil", "usuario"].includes(nombreLow)) {
@@ -283,24 +351,6 @@ async function cargarMenuDinamico() {
             }
 
             lista.innerHTML = htmlMenu;
-
-            // Conservamos tu lógica anterior por si acaso, aunque el nuevo seguridad.js ya oculta todo por CSS
-            if (moduloActual) {
-                const noPuedeAgregar = (moduloActual.agregar === false || moduloActual.agregar === 0 || moduloActual.bit_agregar === false || moduloActual.bit_agregar === 0);
-                const noPuedeEliminar = (moduloActual.eliminar === false || moduloActual.eliminar === 0 || moduloActual.bit_eliminar === false || moduloActual.bit_eliminar === 0);
-
-                const btnCrear = document.getElementById("btn-crear");
-                if (btnCrear && noPuedeAgregar) {
-                    const btnAbrirModal = document.querySelector("button[onclick='abrirModalUsuario()']");
-                    if(btnAbrirModal) btnAbrirModal.style.display = "none";
-                }
-
-                if (noPuedeEliminar) {
-                    const estilo = document.createElement('style');
-                    estilo.innerHTML = `.btn-eliminar { display: none !important; }`;
-                    document.head.appendChild(estilo);
-                }
-            }
         }
     } catch (e) { console.error("Error menú:", e); }
 }
@@ -309,7 +359,7 @@ async function cargarMenuDinamico() {
    ELIMINAR USUARIO
    ========================================== */
 async function eliminarUsuario(id) {
-    // 🛡️ CANDADO LÓGICO: Evita borrados maliciosos si forzaron el botón
+    // 🛡️ CANDADO LÓGICO
     if (window.permisosPantalla && window.permisosPantalla.eliminar === false) {
         alert("⛔ Acción denegada: No tienes permiso para eliminar usuarios.");
         return;
