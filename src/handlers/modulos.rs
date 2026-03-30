@@ -18,6 +18,7 @@ pub struct ModuloVisible {
     pub editar: bool,
     pub eliminar: bool,
     pub consulta: bool,
+    pub detalle: bool, // 👇 NUEVO: Agregamos detalle a la estructura
 }
 
 // 2. Función para listar todos los módulos (LA QUE PIDE ROUTES.RS)
@@ -69,7 +70,8 @@ pub async fn obtener_menu_permisos(
                 true as "agregar!",
                 true as "editar!",
                 true as "eliminar!",
-                true as "consulta!"
+                true as "consulta!",
+                true as "detalle!" -- 👇 NUEVO: MODO DIOS tiene detalle activado
             FROM modulo
             ORDER BY id
             "#
@@ -87,11 +89,13 @@ pub async fn obtener_menu_permisos(
                 pp.bit_agregar as "agregar!",
                 pp.bit_editar as "editar!",
                 pp.bit_eliminar as "eliminar!",
-                pp.bit_consulta as "consulta!"
+                pp.bit_consulta as "consulta!",
+                pp.bit_detalle as "detalle!" -- 👇 NUEVO: Leemos bit_detalle de la BD
             FROM modulo m
             JOIN permisos_perfil pp ON m.id = pp.id_modulo
             WHERE pp.id_perfil = $1 
-              AND (pp.bit_agregar OR pp.bit_editar OR pp.bit_eliminar OR pp.bit_consulta)
+              -- 👇 NUEVO: Agregamos bit_detalle a la condición para que traiga la info
+              AND (pp.bit_agregar OR pp.bit_editar OR pp.bit_eliminar OR pp.bit_consulta OR pp.bit_detalle)
             ORDER BY m.id
             "#,
             claims.perfil
