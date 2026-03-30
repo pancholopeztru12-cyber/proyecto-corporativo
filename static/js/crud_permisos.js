@@ -1,6 +1,6 @@
 const API = "/api";
 let permisosActuales = []; 
-let todosLosModulos = []; // Guardaremos los módulos globalmente para armar la tabla
+let todosLosModulos = []; 
 
 /* === FUNCIÓN GLOBAL DE ERRORES === */
 function manejarErroresFetch(response) {
@@ -33,12 +33,12 @@ async function cargarCatalogos() {
             perfiles.forEach(p => selectP.innerHTML += `<option value="${p.id}">${p.str_nombre_perfil || 'Perfil '+p.id}</option>`);
         }
 
-        // 2. Cargar TODOS los Módulos del sistema (Para armar el árbol)
+        // 2. Cargar TODOS los Módulos del sistema
         const resModulos = await fetch(`${API}/modulos`, { headers });
         if (manejarErroresFetch(resModulos)) return;
 
         if (resModulos.ok) {
-            todosLosModulos = await resModulos.json(); // Guardamos los módulos en memoria
+            todosLosModulos = await resModulos.json();
         }
     } catch (e) { console.error("Error cargando catálogos:", e); }
 }
@@ -210,7 +210,6 @@ function renderizarTablaMatriz() {
     if (window.permisosPantalla && window.permisosPantalla.editar === false) {
         document.querySelectorAll(".chk-permiso").forEach(chk => {
             chk.disabled = true;
-            chk.style.cursor = "not-allowed";
         });
     }
 }
@@ -265,7 +264,7 @@ async function guardarMatrizPermisos() {
             bit_editar: fila.querySelector(".chk-editar").checked,
             bit_eliminar: fila.querySelector(".chk-eliminar").checked,
             bit_consulta: fila.querySelector(".chk-consulta").checked,
-            bit_detalle: fila.querySelector(".chk-detalle").checked
+            bit_detalle: fila.querySelector(".chk-detalle").checked // ¡El detalle se manda al backend!
         };
 
         const idPermisoExistente = chkAgregar.getAttribute("data-id-permiso");
@@ -300,7 +299,7 @@ async function guardarMatrizPermisos() {
 }
 
 /* ==========================================
-   INICIALIZACIÓN AL CARGAR LA PÁGINA
+   INICIALIZACIÓN CON RELOJITO DE PERMISOS
    ========================================== */
 document.addEventListener("DOMContentLoaded", () => {
     const token = localStorage.getItem("token");
@@ -317,7 +316,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("select_perfil").addEventListener("change", renderizarTablaMatriz);
 
-    cargarCatalogos();
-    cargarMenuDinamico();
-    cargarPermisos();
+    // ⏳ EL RELOJITO: Esperamos los permisos antes de arrancar todo
+    esperarPermisosYIniciar();
 });
+
+function esperarPermisosYIniciar() {
+    if (window.permisosPantalla) {
+        // En cuanto sepamos los permisos, arrancamos el sistema
+        cargarCatalogos();
+        cargarMenuDinamico();
+        cargarPermisos();
+    } else {
+        setTimeout(esperarPermisosYIniciar, 50);
+    }
+}

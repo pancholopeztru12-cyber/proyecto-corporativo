@@ -46,6 +46,10 @@
             cursor: pointer;
             accent-color: #3b82f6;
         }
+        .chk-permiso:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
         /* Contenedor del encabezado de la matriz */
         .header-matriz {
             display: flex; 
@@ -66,10 +70,10 @@
 
     <div class="top-header">
         <div class="breadcrumb">
-    <a href="/index.html" style="color: #3b82f6; text-decoration: none;">🏠 Inicio</a> > 
-    <span style="color: #64748b;">Seguridad</span> > 
-    <b style="color: #1e293b;">Permisos por Perfil</b>
-</div>
+            <a href="/index.html" style="color: #3b82f6; text-decoration: none;">🏠 Inicio</a> > 
+            <span style="color: #64748b;">Seguridad</span> > 
+            <b style="color: #1e293b;">Permisos por Perfil</b>
+        </div>
         <div class="user-welcome">
             👋 Bienvenido: <span id="nombre-usuario-nav">...</span>
         </div>
@@ -92,7 +96,7 @@
                 <div class="selector-perfil-caja">
                     <label style="margin-right: 10px; color: #334155;"><b>Seleccionar Perfil:</b></label>
                     <select id="select_perfil" style="min-width: 250px; padding: 8px; border-radius: 4px; border: 1px solid #cbd5e1;">
-                        <option value="">Seleccione un Perfil...</option>
+                        <option value="">⏳ Cargando perfiles...</option>
                     </select>
                 </div>
             </div>
@@ -106,13 +110,13 @@
                             <th>Editar</th>
                             <th>Eliminar</th>
                             <th>Consultar</th>
-                            <th>Detalle</th>
+                            <th style="color: #38bdf8;">Detalle</th>
                         </tr>
                     </thead>
                     <tbody id="tablaPermisos">
                         <tr>
-                            <td colspan="6" style="padding: 40px; text-align: center; color: #64748b; font-size: 16px;">
-                                👆 Selecciona un perfil en la parte superior para cargar su matriz de permisos.
+                            <td colspan="6" style="padding: 40px; text-align: center; color: #64748b; font-size: 16px; font-weight: bold;">
+                                ⏳ Cargando el sistema de permisos...
                             </td>
                         </tr>
                     </tbody>
@@ -120,7 +124,7 @@
             </div>
 
             <div style="margin-top: 20px; text-align: right;">
-                <button id="btn-guardar" class="btn-guardar" onclick="guardarMatrizPermisos()" style="padding: 12px 25px; font-size: 16px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; display: none; font-weight: bold;">
+                <button id="btn-guardar" class="btn-guardar" onclick="guardarMatrizPermisos()" style="padding: 12px 25px; font-size: 16px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; display: none; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
                     💾 Guardar Cambios del Perfil
                 </button>
             </div>
