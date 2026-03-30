@@ -61,10 +61,10 @@ async function cargarPerfiles() {
                 const nombrePerfil = p.str_nombre_perfil || p.nombre || "Sin nombre";
                 const badgeAdmin = p.bit_administrador ? `<span style="background: #fee2e2; color: #dc2626; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin-left: 8px; font-weight: bold;">ADMIN</span>` : '';
 
-                // Candados de permisos para mostrar u ocultar botones
-                const puedeEditar = (!window.permisosPantalla || window.permisosPantalla.editar) ? `<button class="btn-editar" onclick="editarPerfil(${p.id})" style="color:orange; border: 1px solid orange; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer;">Editar</button>` : '';
-                const puedeEliminar = (!window.permisosPantalla || window.permisosPantalla.eliminar) ? `<button class="btn-eliminar" onclick="eliminarPerfil(${p.id})" style="color:red; border: 1px solid red; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer; margin-left: 5px;">Eliminar</button>` : '';
-                const puedeVerDetalle = (!window.permisosPantalla || window.permisosPantalla.detalle) ? `<button class="btn-detalle" onclick="verDetallePerfil(${p.id})" style="color:#0ea5e9; border: 1px solid #0ea5e9; padding: 2px 5px; border-radius: 4px; background: white; cursor: pointer; margin-right: 5px;">Detalle</button>` : '';
+                // Candados de permisos con estilos unificados (sin márgenes raros, usando flexbox en el contenedor)
+                const puedeVerDetalle = (!window.permisosPantalla || window.permisosPantalla.detalle) ? `<button class="btn-detalle" onclick="verDetallePerfil(${p.id})" style="color:#0ea5e9; border: 1px solid #0ea5e9; padding: 4px 8px; border-radius: 4px; background: white; cursor: pointer; font-size: 13px; font-weight: 500;">Detalle</button>` : '';
+                const puedeEditar = (!window.permisosPantalla || window.permisosPantalla.editar) ? `<button class="btn-editar" onclick="editarPerfil(${p.id})" style="color:#f59e0b; border: 1px solid #f59e0b; padding: 4px 8px; border-radius: 4px; background: white; cursor: pointer; font-size: 13px; font-weight: 500;">Editar</button>` : '';
+                const puedeEliminar = (!window.permisosPantalla || window.permisosPantalla.eliminar) ? `<button class="btn-eliminar" onclick="eliminarPerfil(${p.id})" style="color:#ef4444; border: 1px solid #ef4444; padding: 4px 8px; border-radius: 4px; background: white; cursor: pointer; font-size: 13px; font-weight: 500;">Eliminar</button>` : '';
 
                 return `
                 <tr>
@@ -74,9 +74,11 @@ async function cargarPerfiles() {
                         ${badgeAdmin}
                     </td>
                     <td>
-                        ${puedeVerDetalle}
-                        ${puedeEditar}
-                        ${puedeEliminar}
+                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                            ${puedeVerDetalle}
+                            ${puedeEditar}
+                            ${puedeEliminar}
+                        </div>
                     </td>
                 </tr>
             `}).join('');
