@@ -308,5 +308,5 @@ document.addEventListener("DOMContentLoaded", () => {
             clearInterval(esperarPermisos); // Detenemos el reloj
             cargarPerfiles(); // ¡Ahora sí, dibujamos la tabla con los permisos correctos!
         }
-    }, 100); // Revisa cada 100 milisegundos si ya llegaron los permisos
+    }, 100); // Revisa cada 100 milisegundos si ya llegaron los
 });
