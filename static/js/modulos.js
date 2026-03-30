@@ -1,4 +1,5 @@
 const API = "/api";
+let listaModulosData = []; // Guardamos los datos para poder ver los detalles fácilmente
 
 /* === FUNCIÓN GLOBAL DE ERRORES === */
 function manejarErroresFetch(response) {
@@ -15,6 +16,13 @@ function manejarErroresFetch(response) {
 /* === CARGAR MÓDULOS EN LA TABLA === */
 async function cargarModulos() {
     const token = localStorage.getItem("token");
+    const tabla = document.getElementById("tablaModulos");
+    
+    // ⏳ Mostrar mensaje de carga
+    if (tabla) {
+        tabla.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: #64748b; font-weight: bold;">⏳ Cargando módulos, por favor espera...</td></tr>`;
+    }
+
     try {
         const response = await fetch(`${API}/modulos`, {
             headers: { "Authorization": `Bearer ${token}` }
@@ -23,52 +31,119 @@ async function cargarModulos() {
         if (manejarErroresFetch(response)) return;
 
         if (response.ok) {
-            const data = await response.json();
-            const tabla = document.getElementById("tablaModulos");
+            listaModulosData = await response.json();
             
-            // Renderizamos la tabla con el botón de "Editar" agregado
-            tabla.innerHTML = data.map(m => {
-                const nombreStr = m.str_nombre_modulo || m.nombre || "";
-                const rutaStr = m.str_ruta || "";
-                
-                return `
-                <tr>
-                    <td><strong>${m.id}</strong></td>
-                    <td><span style="background: #e0e7ff; color: #4338ca; padding: 4px 12px; border-radius: 12px; font-weight: bold;">${nombreStr || "N/A"}</span></td>
-                    <td>${rutaStr || "N/A"}</td>
-                    <td>
-                        <button class="btn-editar" onclick="abrirEdicion(${m.id}, '${nombreStr}', '${rutaStr}')" style="border: 1px solid #f59e0b; color: #f59e0b; background: white; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-                            Editar
-                        </button>
-                    </td>
-                </tr>
-                `;
-            }).join('');
+            // ⏳ EL RELOJITO: Esperamos los permisos antes de dibujar los botones
+            esperarPermisosYRenderizar();
         }
     } catch (error) {
         console.error("Error:", error);
+        if (tabla) {
+            tabla.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: red;">❌ Error al conectar con el servidor.</td></tr>`;
+        }
     }
 }
 
-/* === NUEVAS FUNCIONES PARA EDITAR MÓDULOS === */
+function esperarPermisosYRenderizar() {
+    if (window.permisosPantalla) {
+        renderizarTablaModulos();
+    } else {
+        setTimeout(esperarPermisosYRenderizar, 50);
+    }
+}
 
-// 1. Mostrar el formulario con los datos cargados
-function abrirEdicion(id, nombre, ruta) {
-    // 🛡️ CANDADO LÓGICO: Evita que abran la edición si no tienen permiso
+function renderizarTablaModulos() {
+    const tabla = document.getElementById("tablaModulos");
+    const permisos = window.permisosPantalla;
+
+    tabla.innerHTML = listaModulosData.map(m => {
+        const nombreStr = m.str_nombre_modulo || m.nombre || "N/A";
+        const rutaStr = m.str_ruta || "N/A";
+        
+        // 🎨 CONSTRUCCIÓN DE BOTONES CON FLEXBOX
+        let botones = `<div style="display: flex; gap: 8px; justify-content: center;">`;
+
+        if (permisos.detalle) {
+            botones += `<button class="btn-detalle" onclick="verDetalleModulo(${m.id})" style="color:#0ea5e9; border: 1px solid #0ea5e9; padding: 4px 8px; border-radius: 4px; background: white; cursor: pointer; font-weight: 500;">🔍 Detalle</button>`;
+        }
+        if (permisos.editar) {
+            botones += `<button class="btn-editar" onclick="abrirEdicion(${m.id})" style="color:#f59e0b; border: 1px solid #f59e0b; padding: 4px 8px; border-radius: 4px; background: white; cursor: pointer; font-weight: 500;">✏️ Editar</button>`;
+        }
+        
+        botones += `</div>`;
+
+        return `
+        <tr>
+            <td><strong>${m.id}</strong></td>
+            <td><span style="background: #e0e7ff; color: #4338ca; padding: 4px 12px; border-radius: 12px; font-weight: bold;">${nombreStr}</span></td>
+            <td>${rutaStr}</td>
+            <td>${botones}</td>
+        </tr>
+        `;
+    }).join('');
+}
+
+/* === LÓGICA DEL FORMULARIO EN LÍNEA === */
+
+function alternarCamposLectura(soloLectura) {
+    document.getElementById("edit-nombre").disabled = soloLectura;
+    document.getElementById("edit-ruta").disabled = soloLectura;
+    
+    // Ocultar/Mostrar botón de guardar
+    const btnGuardar = document.getElementById("btn-guardar-modulo");
+    if (btnGuardar) {
+        btnGuardar.style.display = soloLectura ? "none" : "inline-block";
+    }
+}
+
+// 1. Mostrar Detalle (Solo lectura)
+function verDetalleModulo(id) {
+    if (window.permisosPantalla && window.permisosPantalla.detalle === false) {
+        alert("⛔ Acción denegada: No tienes permiso para ver detalles.");
+        return;
+    }
+
+    const m = listaModulosData.find(mod => mod.id === id);
+    if (!m) return;
+
+    document.getElementById("edit-id").value = m.id;
+    document.getElementById("edit-nombre").value = m.str_nombre_modulo || m.nombre || "";
+    document.getElementById("edit-ruta").value = m.str_ruta || "";
+    
+    // Configuración visual para detalle
+    document.getElementById("form-titulo").innerHTML = `🔍 Detalles del Módulo (Solo Lectura)`;
+    document.getElementById("form-titulo").style.borderLeftColor = "#0ea5e9"; // Línea azul
+    alternarCamposLectura(true);
+
+    document.getElementById("form-edicion").style.display = "block";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// 2. Mostrar el formulario para Editar
+function abrirEdicion(id) {
+    // 🛡️ CANDADO LÓGICO
     if (window.permisosPantalla && window.permisosPantalla.editar === false) {
         alert("⛔ Acción denegada: No tienes permiso para editar módulos.");
         return;
     }
 
+    const m = listaModulosData.find(mod => mod.id === id);
+    if (!m) return;
+
+    document.getElementById("edit-id").value = m.id;
+    document.getElementById("edit-nombre").value = m.str_nombre_modulo || m.nombre || "";
+    document.getElementById("edit-ruta").value = m.str_ruta || "";
+    
+    // Configuración visual para edición
+    document.getElementById("form-titulo").innerHTML = `✏️ Editar Módulo`;
+    document.getElementById("form-titulo").style.borderLeftColor = "#f59e0b"; // Línea naranja
+    alternarCamposLectura(false);
+
     document.getElementById("form-edicion").style.display = "block";
-    document.getElementById("edit-id").value = id;
-    document.getElementById("edit-nombre").value = nombre;
-    document.getElementById("edit-ruta").value = ruta;
-    // Hacemos scroll hacia arriba para que el usuario vea el formulario
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// 2. Ocultar el formulario y limpiar los campos
+// 3. Ocultar el formulario
 function cerrarEdicion() {
     document.getElementById("form-edicion").style.display = "none";
     document.getElementById("edit-id").value = "";
@@ -76,7 +151,7 @@ function cerrarEdicion() {
     document.getElementById("edit-ruta").value = "";
 }
 
-// 3. Enviar la actualización al backend
+// 4. Enviar la actualización al backend
 async function guardarEdicionModulo() {
     const id = document.getElementById("edit-id").value;
     const nombre = document.getElementById("edit-nombre").value.trim();
@@ -89,14 +164,12 @@ async function guardarEdicionModulo() {
     }
 
     try {
-        // Hacemos un PUT a /api/modulos/{id}
         const response = await fetch(`${API}/modulos/${id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
             },
-            // Asegúrate de que tu backend en Rust reciba estos nombres de campos (str_nombre_modulo y str_ruta)
             body: JSON.stringify({
                 str_nombre_modulo: nombre,
                 str_ruta: ruta
@@ -106,7 +179,7 @@ async function guardarEdicionModulo() {
         if (response.ok) {
             alert("Módulo actualizado con éxito");
             cerrarEdicion();
-            cargarModulos(); // Recargamos la tabla para ver los cambios
+            cargarModulos(); 
         } else {
             const errorData = await response.json();
             alert("Error al actualizar: " + (errorData.message || "Verifica tu backend"));
@@ -116,9 +189,6 @@ async function guardarEdicionModulo() {
         alert("No se pudo conectar con el servidor.");
     }
 }
-
-
-/* === EL RESTO DEL CÓDIGO INTACTO === */
 
 /* === CARGAR MENÚ DINÁMICO === */
 async function cargarMenuDinamico() {
