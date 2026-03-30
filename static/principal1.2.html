@@ -24,39 +24,16 @@
         <aside id="menu-lateral">
             <h3>Menú</h3>
             <ul id="lista-menu">
-                <li>
-                    <strong style="color:#333;">Seguridad</strong>
-                    <ul style="list-style:circle; padding-left:20px; margin-top:5px;">
-                        <li><a style="color: #cbd5e1; text-decoration: none;" href="/usuarios.html">Usuarios</a></li>
-                        <li><a style="color: #cbd5e1; text-decoration: none;" href="/perfiles.html">Perfiles</a></li>
-                        <li><a style="color: #cbd5e1; text-decoration: none;" href="/modulos.html">Módulos</a></li>
-                        <li><a style="color: #cbd5e1; text-decoration: none;" href="/permisosperfil.html">Permisos Perfil</a></li>
-                    </ul>
-                </li>
-                <li style="margin-top:15px;">
-                    <strong style="color:#333;">Principal 1</strong>
-                    <ul style="list-style:circle; padding-left:20px; margin-top:5px;">
-                        <li><a style="color: #cbd5e1; text-decoration: none;" href="/principal1.1.html">Principal 1.1</a></li>
-                        <li><a style="color: #4f46e5; font-weight: bold; text-decoration: none;" href="/principal1.2.html">Principal 1.2</a></li>
-                    </ul>
-                </li>
-                <li style="margin-top:15px;">
-                    <strong style="color:#333;">Principal 2</strong>
-                    <ul style="list-style:circle; padding-left:20px; margin-top:5px;">
-                        <li><a style="color: #cbd5e1; text-decoration: none;" href="/principal2.1.html">Principal 2.1</a></li>
-                        <li><a style="color: #cbd5e1; text-decoration: none;" href="/principal2.2.html">Principal 2.2</a></li>
-                    </ul>
-                </li>
-            </ul>
+                </ul>
             <hr>
             <button onclick="localStorage.clear(); location.href='/login.html'" style="width:100%; background: #ef4444; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer;">Salir</button>
         </aside>
 
         <main class="content">
             <h2 style="border-left: 4px solid #3b82f6; padding-left: 10px; color: #1e293b; margin-bottom: 5px;">Gestión de Registros (1.2)</h2>
-            <p style="color: #64748b; margin-bottom: 20px;">Esta es una pantalla estática de demostración. Los botones de CRUD no afectan la base de datos.</p>
+            <p style="color: #64748b; margin-bottom: 20px;">Esta es una pantalla estática de demostración. Los botones de CRUD se ocultan según los permisos.</p>
             
-            <button onclick="alert('Simulación: Agregando registro...')" style="background-color: #4f46e5; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; margin-bottom: 20px;">+ Agregar Nuevo Registro</button>
+            <button id="btn-agregar" style="background-color: #4f46e5; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; margin-bottom: 20px; display: none;">+ Agregar Nuevo Registro</button>
 
             <div style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden;">
                 <table style="width: 100%; border-collapse: collapse; text-align: center;">
@@ -69,33 +46,13 @@
                             <th style="padding: 15px; color: #64748b; font-weight: bold; font-size: 13px;">ACCIONES CRUD</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr style="border-bottom: 1px solid #e2e8f0;">
-                            <td style="padding: 15px; color: #333;">1</td>
-                            <td style="padding: 15px; color: #333;">Dato de Prueba 01</td>
-                            <td style="padding: 15px; color: #666;">Este es un registro de relleno para cumplir la rúbrica</td>
-                            <td style="padding: 15px; color: #10b981; font-weight: bold;">Activo</td>
-                            <td style="padding: 15px;">
-                                <button onclick="alert('Ver')" style="border: 1px solid #3b82f6; color: #3b82f6; background: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Ver</button>
-                                <button onclick="alert('Editar')" style="border: 1px solid #f59e0b; color: #f59e0b; background: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;">Editar</button>
-                                <button onclick="alert('Eliminar')" style="border: 1px solid #ef4444; color: #ef4444; background: white; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Eliminar</button>
-                            </td>
-                        </tr>
-                    </tbody>
+                    <tbody id="tablaRegistros">
+                        </tbody>
                 </table>
             </div>
         </main>
     </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const nombreGuardado = localStorage.getItem("nombre_usuario");
-            if (nombreGuardado) {
-                document.getElementById("nombre-usuario-nav").innerText = nombreGuardado;
-            } else {
-                document.getElementById("nombre-usuario-nav").innerText = "Invitado";
-            }
-        });
-    </script>
+    <script src="/js/principal12.js"></script>
 </body>
 </html>

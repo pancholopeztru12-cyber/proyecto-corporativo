@@ -77,7 +77,9 @@ function renderizarTablaPerfiles(data) {
         return;
     }
     
-    tabla.innerHTML = data.map(p => {
+    // Aquí agregamos el (p, index) para poder usar el número de fila
+    tabla.innerHTML = data.map((p, index) => {
+        const numeroFila = index + 1; // Contador empezando en 1
         const nombrePerfil = p.str_nombre_perfil || p.nombre || "Sin nombre";
         const badgeAdmin = p.bit_administrador ? `<span style="background: #fee2e2; color: #dc2626; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin-left: 8px; font-weight: bold;">ADMIN</span>` : '';
 
@@ -87,7 +89,7 @@ function renderizarTablaPerfiles(data) {
 
         return `
         <tr>
-            <td><strong>${p.id}</strong></td>
+            <td><strong>${numeroFila}</strong></td>
             <td>
                 <span style="background: #e0e7ff; color: #4338ca; padding: 4px 12px; border-radius: 12px; font-weight: bold;">${nombrePerfil}</span>
                 ${badgeAdmin}
@@ -112,7 +114,8 @@ function filtrarPerfiles() {
     
     const resultados = listaPerfilesData.filter(p => {
         const nombre = (p.str_nombre_perfil || p.nombre || "").toLowerCase();
-        const id = p.id ? p.id.toString() : "";
+        // Seguimos permitiendo buscar por ID internamente aunque no se vea
+        const id = p.id ? p.id.toString() : ""; 
         return nombre.includes(termino) || id.includes(termino);
     });
 
@@ -126,14 +129,15 @@ function exportarExcel() {
         return;
     }
 
-    let csvContent = "ID,Nombre del Perfil,Es Administrador\n";
+    // Cambiamos el encabezado a N°
+    let csvContent = "N°,Nombre del Perfil,Es Administrador\n";
 
-    listaPerfilesData.forEach(p => {
-        const id = p.id || "";
+    listaPerfilesData.forEach((p, index) => {
+        const numeroFila = index + 1; // Usamos el número consecutivo
         const nombre = p.str_nombre_perfil || p.nombre || "Sin nombre";
         const esAdmin = p.bit_administrador ? "Si" : "No";
         
-        csvContent += `${id},"${nombre}",${esAdmin}\n`;
+        csvContent += `${numeroFila},"${nombre}",${esAdmin}\n`;
     });
 
     // \uFEFF asegura que Excel lea los acentos y ñ correctamente (UTF-8)
@@ -164,7 +168,7 @@ function verDetallePerfil(id) {
     document.getElementById("nuevo_nombre_perfil").value = p.str_nombre_perfil || p.nombre || "";
     document.getElementById("esAdministrador").checked = p.bit_administrador || false; 
     
-    document.getElementById("modal-titulo").innerText = `Detalle del Perfil (ID: ${id})`;
+    document.getElementById("modal-titulo").innerText = `Detalle del Perfil`; // ID Removido
     document.getElementById("nuevo_nombre_perfil").disabled = true; 
     document.getElementById("esAdministrador").disabled = true; 
     document.getElementById("btn-crear").style.display = "none"; 
@@ -186,7 +190,7 @@ function editarPerfil(id) {
     document.getElementById("nuevo_nombre_perfil").value = p.str_nombre_perfil || p.nombre || "";
     document.getElementById("esAdministrador").checked = p.bit_administrador || false; 
     
-    document.getElementById("modal-titulo").innerText = `Editar Perfil (ID: ${id})`;
+    document.getElementById("modal-titulo").innerText = `Editar Perfil`; // ID Removido
     document.getElementById("nuevo_nombre_perfil").disabled = false;
     document.getElementById("esAdministrador").disabled = false;
     document.getElementById("btn-crear").style.display = "block";

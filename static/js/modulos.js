@@ -62,7 +62,9 @@ function renderizarTablaModulos(data) {
         return;
     }
 
-    tabla.innerHTML = data.map(m => {
+    // Agregamos el index para el número de fila
+    tabla.innerHTML = data.map((m, index) => {
+        const numeroFila = index + 1;
         const nombreStr = m.str_nombre_modulo || m.nombre || "N/A";
         const rutaStr = m.str_ruta || "N/A";
         
@@ -80,7 +82,7 @@ function renderizarTablaModulos(data) {
 
         return `
         <tr>
-            <td><strong>${m.id}</strong></td>
+            <td><strong>${numeroFila}</strong></td>
             <td><span style="background: #e0e7ff; color: #4338ca; padding: 4px 12px; border-radius: 12px; font-weight: bold;">${nombreStr}</span></td>
             <td>${rutaStr}</td>
             <td>${botones}</td>
@@ -98,6 +100,7 @@ function filtrarModulos() {
     
     const resultados = listaModulosData.filter(m => {
         const nombre = (m.str_nombre_modulo || m.nombre || "").toLowerCase();
+        // Seguimos permitiendo buscar por ID internamente aunque no se vea en la tabla
         const id = m.id ? m.id.toString() : "";
         return nombre.includes(termino) || id.includes(termino);
     });
@@ -112,14 +115,15 @@ function exportarExcel() {
         return;
     }
 
-    let csvContent = "ID,Nombre del Módulo,Ruta\n";
+    // Cambiamos el encabezado a N°
+    let csvContent = "N°,Nombre del Módulo,Ruta\n";
 
-    listaModulosData.forEach(m => {
-        const id = m.id || "";
+    listaModulosData.forEach((m, index) => {
+        const numeroFila = index + 1;
         const nombre = m.str_nombre_modulo || m.nombre || "N/A";
         const ruta = m.str_ruta || "N/A";
         
-        csvContent += `${id},"${nombre}","${ruta}"\n`;
+        csvContent += `${numeroFila},"${nombre}","${ruta}"\n`;
     });
 
     // \uFEFF asegura que Excel lea los acentos y ñ correctamente (UTF-8)
