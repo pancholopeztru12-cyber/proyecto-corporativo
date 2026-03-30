@@ -56,6 +56,11 @@ function cerrarModalUsuario() {
 async function cargarUsuarios(pagina = 1) {
     paginaActual = pagina;
     const token = localStorage.getItem("token");
+    const tabla = document.getElementById("tablaUsuarios");
+
+    if (tabla) {
+        tabla.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 20px; color: #64748b; font-weight: bold;">⏳ Cargando usuarios...</td></tr>`;
+    }
 
     try {
         const response = await fetch(`${API}/usuarios?pagina=${paginaActual}`, { 
@@ -71,23 +76,33 @@ async function cargarUsuarios(pagina = 1) {
 
     } catch (error) {
         console.error("Error cargando usuarios:", error);
+        if (tabla) {
+            tabla.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 20px; color: red;">❌ Error al cargar los datos.</td></tr>`;
+        }
     }
 }
 
 function esperarPermisosYRenderizar() {
     if (window.permisosPantalla) {
-        renderizarTabla();
+        renderizarTabla(listaUsuariosData);
     } else {
         setTimeout(esperarPermisosYRenderizar, 50);
     }
 }
 
-function renderizarTabla() {
+function renderizarTabla(data) {
     const tabla = document.getElementById("tablaUsuarios");
+    if (!tabla) return;
+    
     tabla.innerHTML = "";
     const permisos = window.permisosPantalla; // Ya sabemos que existe gracias al relojito
 
-    listaUsuariosData.forEach(u => {
+    if (data.length === 0) {
+        tabla.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 20px; color: #64748b;">No hay usuarios registrados o no coinciden con la búsqueda.</td></tr>`;
+        return;
+    }
+
+    data.forEach(u => {
         const fotoUrl = u.imagen ? `/uploads/usuarios/${u.imagen}` : '/img/default.png';
         const esActivo = u.id_estado_usuario === true || u.id_estado_usuario === "true" || u.id_estado_usuario === 1;
         const estadoTexto = esActivo ? "Activo" : "Inactivo";
@@ -125,7 +140,61 @@ function renderizarTabla() {
         </tr>`;
     });
 
-    document.getElementById("infoPagina").innerText = `Página ${paginaActual}`;
+    const infoPagina = document.getElementById("infoPagina");
+    if (infoPagina) infoPagina.innerText = `Página ${paginaActual}`;
+}
+
+/* === NUEVO: FUNCIÓN PARA FILTRAR === */
+function filtrarUsuarios() {
+    const input = document.getElementById("inputFiltroUsuarios");
+    if (!input) return;
+
+    const termino = input.value.toLowerCase().trim();
+    
+    const resultados = listaUsuariosData.filter(u => {
+        const nombre = (u.nombre || u.str_nombre_usuario || "").toLowerCase();
+        const correo = (u.email || u.str_correo || "").toLowerCase();
+        const celular = (u.celular || u.str_numero_celular || "").toLowerCase();
+        
+        return nombre.includes(termino) || correo.includes(termino) || celular.includes(termino);
+    });
+
+    renderizarTabla(resultados);
+}
+
+/* === NUEVO: FUNCIÓN PARA EXPORTAR A EXCEL (CSV) === */
+function exportarExcel() {
+    if (listaUsuariosData.length === 0) {
+        alert("⚠️ No hay datos para exportar en esta página.");
+        return;
+    }
+
+    let csvContent = "ID,Nombre,Perfil,Correo,Celular,Estado\n";
+
+    listaUsuariosData.forEach(u => {
+        const id = u.id || "";
+        const nombre = u.nombre || u.str_nombre_usuario || "N/A";
+        const perfil = u.perfil || "Sin Perfil";
+        const correo = u.email || u.str_correo || "N/A";
+        const celular = u.celular || u.str_numero_celular || "N/A";
+        const esActivo = u.id_estado_usuario === true || u.id_estado_usuario === "true" || u.id_estado_usuario === 1;
+        const estado = esActivo ? "Activo" : "Inactivo";
+        
+        csvContent += `${id},"${nombre}","${perfil}","${correo}","${celular}","${estado}"\n`;
+    });
+
+    // \uFEFF asegura que Excel lea los acentos y ñ correctamente (UTF-8)
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Reporte_Usuarios_Pagina_${paginaActual}.csv`); 
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 /* ==========================================

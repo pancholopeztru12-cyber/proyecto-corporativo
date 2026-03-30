@@ -46,17 +46,23 @@ async function cargarModulos() {
 
 function esperarPermisosYRenderizar() {
     if (window.permisosPantalla) {
-        renderizarTablaModulos();
+        renderizarTablaModulos(listaModulosData); // Ahora le pasamos la data
     } else {
         setTimeout(esperarPermisosYRenderizar, 50);
     }
 }
 
-function renderizarTablaModulos() {
+function renderizarTablaModulos(data) {
     const tabla = document.getElementById("tablaModulos");
+    if (!tabla) return;
     const permisos = window.permisosPantalla;
 
-    tabla.innerHTML = listaModulosData.map(m => {
+    if (data.length === 0) {
+        tabla.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px; color: #64748b;">No hay módulos registrados o no coinciden con la búsqueda.</td></tr>`;
+        return;
+    }
+
+    tabla.innerHTML = data.map(m => {
         const nombreStr = m.str_nombre_modulo || m.nombre || "N/A";
         const rutaStr = m.str_ruta || "N/A";
         
@@ -81,6 +87,53 @@ function renderizarTablaModulos() {
         </tr>
         `;
     }).join('');
+}
+
+/* === NUEVO: FUNCIÓN PARA FILTRAR === */
+function filtrarModulos() {
+    const input = document.getElementById("inputFiltroModulos");
+    if (!input) return;
+
+    const termino = input.value.toLowerCase().trim();
+    
+    const resultados = listaModulosData.filter(m => {
+        const nombre = (m.str_nombre_modulo || m.nombre || "").toLowerCase();
+        const id = m.id ? m.id.toString() : "";
+        return nombre.includes(termino) || id.includes(termino);
+    });
+
+    renderizarTablaModulos(resultados);
+}
+
+/* === NUEVO: FUNCIÓN PARA EXPORTAR A EXCEL (CSV) === */
+function exportarExcel() {
+    if (listaModulosData.length === 0) {
+        alert("⚠️ No hay datos para exportar.");
+        return;
+    }
+
+    let csvContent = "ID,Nombre del Módulo,Ruta\n";
+
+    listaModulosData.forEach(m => {
+        const id = m.id || "";
+        const nombre = m.str_nombre_modulo || m.nombre || "N/A";
+        const ruta = m.str_ruta || "N/A";
+        
+        csvContent += `${id},"${nombre}","${ruta}"\n`;
+    });
+
+    // \uFEFF asegura que Excel lea los acentos y ñ correctamente (UTF-8)
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", "Reporte_Modulos.csv"); 
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 /* === LÓGICA DEL FORMULARIO EN LÍNEA === */
@@ -251,7 +304,6 @@ async function cargarMenuDinamico() {
                 htmlMenu += `</ul></li>`;
             }
 
-            // <-- DIBUJAMOS PRINCIPAL 2 AQUI -->
             if (menuPrincipal2.length > 0) {
                 htmlMenu += `<li style="margin-top:15px;"><strong style="color:#333;">Principal 2</strong><ul style="list-style:circle; padding-left:20px; margin-top:5px;">`;
                 menuPrincipal2.forEach(nombre => {

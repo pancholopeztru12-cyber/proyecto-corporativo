@@ -38,12 +38,27 @@
         </aside>
 
         <main class="content">
-            <h2>Catálogo de Módulos</h2>
+            <h2 style="margin-bottom: 20px;">Catálogo de Módulos</h2>
             
-            <div style="margin-bottom: 20px;">
-                <button class="btn-guardar" onclick="cargarModulos()" style="background: #4f46e5; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
-                    🔄 Recargar Módulos
-                </button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                
+                <div style="display: flex; align-items: center; background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px 12px; width: 100%; max-width: 300px;">
+                    <span style="font-size: 18px; color: #94a3b8; margin-right: 8px;">⚲</span>
+                    <input type="text" id="inputFiltroModulos" onkeyup="filtrarModulos()" placeholder="Buscar módulo o ID..." style="border: none; outline: none; width: 100%; padding: 6px 0;">
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-guardar" onclick="cargarModulos()" style="background: #4f46e5; color: white; padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);">
+                        🔄 Recargar
+                    </button>
+
+                    <button onclick="exportarExcel()" style="background-color: #10b981; color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; font-size: 14px; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        Descargar Excel
+                    </button>
+                </div>
             </div>
 
             <div id="form-edicion" style="display: none; background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
