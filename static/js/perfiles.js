@@ -109,7 +109,7 @@ function verDetallePerfil(id) {
     document.getElementById("modal-perfil").style.display = "block";
 }
 
-/* === EDITAR PERFIL (Llenar formulario y abrir modal) === */
+/* === EDITAR PERFIL (Llenar formulario ir modal) === */
 function editarPerfil(id) {
     // 🛡️ CANDADO LÓGICO: Evita que editen si inyectan el botón a la fuerza
     if (window.permisosPantalla && window.permisosPantalla.editar === false) {
