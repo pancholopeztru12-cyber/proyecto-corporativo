@@ -251,6 +251,16 @@ async function cargarMenuDinamico() {
                 htmlMenu += `</ul></li>`;
             }
 
+            // <-- DIBUJAMOS PRINCIPAL 2 AQUI -->
+            if (menuPrincipal2.length > 0) {
+                htmlMenu += `<li style="margin-top:15px;"><strong style="color:#333;">Principal 2</strong><ul style="list-style:circle; padding-left:20px; margin-top:5px;">`;
+                menuPrincipal2.forEach(nombre => {
+                    const link = `${nombre.toLowerCase().replace(/\s+/g, '')}.html`;
+                    htmlMenu += `<li><a style="color: #cbd5e1; text-decoration: none;" href="/${link}">${nombre}</a></li>`;
+                });
+                htmlMenu += `</ul></li>`;
+            }
+
             lista.innerHTML = htmlMenu;
         }
     } catch (e) { console.error("Error menú:", e); }

@@ -152,16 +152,30 @@ function editarPerfil(id) {
 async function guardarPerfil() {
     const token = localStorage.getItem("token");
     const id = document.getElementById("perfil_id").value;
-    const nombrePerfil = document.getElementById("nuevo_nombre_perfil").value;
+    const nombrePerfilRaw = document.getElementById("nuevo_nombre_perfil").value;
     const esAdmin = document.getElementById("esAdministrador").checked; 
 
-    if(!nombrePerfil.trim()) {
-        alert("El nombre del perfil es obligatorio");
+    // Limpiamos espacios al inicio y al final
+    const nombrePerfilLimpio = nombrePerfilRaw.trim();
+
+    // 🛡️ CANDADOS DE VALIDACIÓN DE LONGITUD
+    if (!nombrePerfilLimpio) {
+        alert("⚠️ El nombre del perfil es obligatorio.");
+        return;
+    }
+
+    if (nombrePerfilLimpio.length < 3) {
+        alert("⚠️ El nombre del perfil debe tener al menos 3 caracteres.");
+        return;
+    }
+
+    if (nombrePerfilLimpio.length > 50) {
+        alert("⚠️ El nombre del perfil es demasiado largo. Máximo 50 caracteres.");
         return;
     }
 
     const bodyData = { 
-        str_nombre_perfil: nombrePerfil,
+        str_nombre_perfil: nombrePerfilLimpio, // Enviamos el nombre limpio
         bit_administrador: esAdmin
     };
 
@@ -272,6 +286,16 @@ async function cargarMenuDinamico() {
                 htmlMenu += `</ul></li>`;
             }
 
+            // <-- DIBUJAMOS PRINCIPAL 2 AQUI -->
+            if (menuPrincipal2.length > 0) {
+                htmlMenu += `<li style="margin-top:15px;"><strong style="color:#333;">Principal 2</strong><ul style="list-style:circle; padding-left:20px; margin-top:5px;">`;
+                menuPrincipal2.forEach(nombre => {
+                    const link = `${nombre.toLowerCase().replace(/\s+/g, '')}.html`;
+                    htmlMenu += `<li><a style="color: #cbd5e1; text-decoration: none;" href="/${link}">${nombre}</a></li>`;
+                });
+                htmlMenu += `</ul></li>`;
+            }
+
             lista.innerHTML = htmlMenu;
         }
     } catch (e) { console.error("Error menú:", e); }
@@ -308,5 +332,5 @@ document.addEventListener("DOMContentLoaded", () => {
             clearInterval(esperarPermisos); // Detenemos el reloj
             cargarPerfiles(); // ¡Ahora sí, dibujamos la tabla con los permisos correctos!
         }
-    }, 100); // Revisa cada 100 milisegundos si ya llegaron los
+    }, 100); // Revisa cada 100 milisegundos si ya llegaron los permisos
 });

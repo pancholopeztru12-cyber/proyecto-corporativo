@@ -34,7 +34,7 @@ function alternarCamposLectura(soloLectura) {
 }
 
 function abrirModalUsuario() {
-    // 🛡️ CANDADO LÓGICO
+    // 🛡️ CANDADO LÓGICO DE PERMISOS
     if (window.permisosPantalla && window.permisosPantalla.agregar === false) {
         alert("⛔ Acción denegada: No tienes permiso para crear usuarios.");
         return;
@@ -203,30 +203,53 @@ function limpiarFormularioUsuario() {
    GUARDAR (CREAR O ACTUALIZAR) USUARIO 
    ========================================== */
 async function guardarUsuario() {
+    // 🛡️ NUEVO: VALIDACIONES DE LONGITUD Y CAMPOS VACÍOS
+    const nombre = document.getElementById("nuevo_usuario").value.trim();
+    const password = document.getElementById("nuevo_password").value;
+    const perfil = document.getElementById("nuevo_perfil").value;
+    const email = document.getElementById("nuevo_correo").value.trim();
+    const celular = document.getElementById("nuevo_celular").value.trim();
+
+    if (!nombre || nombre.length < 3 || nombre.length > 50) {
+        alert("⚠️ El nombre de usuario es obligatorio y debe tener entre 3 y 50 caracteres.");
+        return;
+    }
+    if (!perfil) {
+        alert("⚠️ Debe seleccionar un perfil obligatoriamente.");
+        return;
+    }
+    if (password !== "" && (password.length < 6 || password.length > 50)) {
+        alert("⚠️ La contraseña debe tener entre 6 y 50 caracteres.");
+        return;
+    }
+    if (email.length > 100) {
+        alert("⚠️ El correo electrónico no puede exceder los 100 caracteres.");
+        return;
+    }
+    if (celular && celular.length > 15) {
+        alert("⚠️ El número de celular es demasiado largo. Máximo 15 caracteres.");
+        return;
+    }
+
+    // Si pasa las validaciones, construimos el FormData
     const token = localStorage.getItem("token");
     const id = document.getElementById("usuario_id").value; 
     
     const formData = new FormData();
-    formData.append("str_nombre_usuario", document.getElementById("nuevo_usuario").value);
+    formData.append("str_nombre_usuario", nombre);
     
-    const password = document.getElementById("nuevo_password").value;
     if (password) {
         formData.append("str_pwd", password);
     }
 
-    formData.append("id_perfil", document.getElementById("nuevo_perfil").value);
-    formData.append("str_correo", document.getElementById("nuevo_correo").value);
-    formData.append("str_numero_celular", document.getElementById("nuevo_celular").value);
+    formData.append("id_perfil", perfil);
+    formData.append("str_correo", email);
+    formData.append("str_numero_celular", celular);
     formData.append("id_estado_usuario", document.getElementById("nuevo_estado").value);
 
     const inputImagen = document.getElementById("imagen_usuario");
     if (inputImagen.files.length > 0) {
         formData.append("imagen_archivo", inputImagen.files[0]);
-    }
-
-    if(!formData.get("str_nombre_usuario") || !formData.get("id_perfil")) {
-        alert("El nombre de usuario y el perfil son obligatorios");
-        return;
     }
 
     const metodo = id ? "PUT" : "POST";
